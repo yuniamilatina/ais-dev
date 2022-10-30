@@ -1,0 +1,316 @@
+
+
+<?php
+
+class production_activity_m extends CI_Model {
+
+    public function __construct() {
+        parent::__construct();
+    }
+
+    private $tabel = 'PRD.TM_PRODUCTION_ACTIVITY';
+    private $tabel_detail = 'PRD.TT_PRODUCTION_ACTIVITY_DETAIL';
+
+    function save($data) {
+        $this->db->insert($this->tabel, $data);
+    }
+
+    function update($data, $id) {
+        $this->db->where($id);
+        $this->db->update($this->tabel, $data);
+    }
+
+    function insert_detail($data){
+        $this->db->insert($this->tabel_detail, $data);
+    }
+
+    function checkExistingbyWO($wo, $sequence){
+        $query = $this->db->query("SELECT   * FROM $this->tabel_detail 
+        WHERE CHR_WO_NUMBER = '$wo' AND INT_PR_SEQUENCE = $sequence");
+
+        if ($query->num_rows() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function get_wo_active_production($work_center, $date, $shift){
+        $query = $this->db->query("SELECT TOP 1 * FROM $this->tabel 
+            WHERE CHR_WORK_CENTER = '$work_center' AND CHR_DATE = '$date' AND INT_SHIFT = '$shift' AND CHR_MODIFIED_BY IS NULL");
+
+        return $query;
+    }
+
+    function get_last_ines_activity_by_work_center($work_center){
+
+        if($work_center == '' || $work_center == null){
+            $work_center = 'ASCC01';
+        }
+
+        $query = $this->db->query(";WITH CTE (NOR, CHR_WORK_CENTER, CHR_WO_NUMBER, CHR_DATE) AS (
+            SELECT ROW_NUMBER() OVER(PARTITION BY CHR_WORK_CENTER ORDER BY CHR_CREATED_DATE DESC, CHR_CREATED_TIME DESC) AS NOR ,
+            CHR_WORK_CENTER, CHR_WO_NUMBER, CHR_DATE
+            FROM PRD.TM_PRODUCTION_ACTIVITY WHERE CHR_WORK_CENTER = '$work_center'
+            )
+            
+            SELECT CHR_WO_NUMBER FROM CTE WHERE NOR = 1 ORDER BY CHR_DATE DESC");
+
+        return $query->row()->CHR_WO_NUMBER;
+    }
+
+
+    function get_last_ines_activity(){
+        $query = $this->db->query(";WITH CTE (NOR, CHR_WORK_CENTER, CHR_WO_NUMBER, CHR_DATE) AS (
+            SELECT ROW_NUMBER() OVER(PARTITION BY CHR_WORK_CENTER ORDER BY CHR_CREATED_DATE DESC, CHR_CREATED_TIME DESC) AS NOR ,
+            CHR_WORK_CENTER, CHR_WO_NUMBER, CHR_DATE
+            FROM PRD.TM_PRODUCTION_ACTIVITY
+            )
+            
+            SELECT CHR_WO_NUMBER FROM CTE WHERE NOR = 1 ORDER BY CHR_DATE DESC");
+
+        return $query->result();
+    }
+
+    function get_duration_activity_production($work_center, $date){
+
+        $query = $this->db->query(";WITH CTE_WORK_TIME (CHR_WORK_CENTER, CHR_DATE, CHR_SHIFT, CHR_SHIFT_TYPE, INT_WORK_TIME) AS (
+            SELECT CHR_WORK_CENTER, CHR_DATE, INT_SHIFT, INT_FLG_SHIFT,
+            CASE
+                WHEN INT_SHIFT = 1 AND INT_FLG_SHIFT = 0 THEN (420) * 60
+                WHEN INT_SHIFT = 1 AND INT_FLG_SHIFT = 1 THEN (630) * 60
+                WHEN INT_SHIFT = 2 THEN (405) *60
+                WHEN INT_SHIFT = 3 AND INT_FLG_SHIFT = 0 THEN (410) * 60
+                WHEN INT_SHIFT = 3 AND INT_FLG_SHIFT = 1 THEN (620) * 60
+                WHEN INT_SHIFT = 4 AND INT_FLG_SHIFT = 0 THEN (455) * 60
+                WHEN INT_SHIFT = 4 AND INT_FLG_SHIFT = 1 THEN (630) * 60
+            ELSE 0 END
+            FROM PRD.TM_PRODUCTION_ACTIVITY CTE
+            WHERE CHR_DATE = '$date'  AND CHR_WORK_CENTER = '$work_center'
+            GROUP BY CHR_WORK_CENTER, CHR_DATE, INT_SHIFT, INT_FLG_SHIFT
+        ),
+        CTE_LS_BRIDGING (CHR_WORK_CENTER, CHR_DATE, CHR_SHIFT, INT_DURASI_LS) AS (
+            SELECT LS.CHR_WORK_CENTER , SUBSTRING(LS.CHR_WO_NUMBER,8,8) CHR_DATE, CHR_SHIFT, SUM(INT_DURASI_LS*60) INT_DURASI_LS
+            FROM TT_LINE_STOP_PROD LS
+            WHERE  LS.CHR_WORK_CENTER = '$work_center' AND SUBSTRING(LS.CHR_WO_NUMBER,8,8)  ='$date'
+            AND LS.CHR_LINE_CODE = 'LS14'
+            GROUP BY LS.CHR_WORK_CENTER, CHR_SHIFT, SUBSTRING(LS.CHR_WO_NUMBER,8,8) 
+        )
+        
+        SELECT (SUM(WT.INT_WORK_TIME) - SUM(ISNULL(BLS.INT_DURASI_LS,0))) / 60 AS INT_LOADING_TIME
+        FROM CTE_WORK_TIME WT LEFT JOIN CTE_LS_BRIDGING BLS ON BLS.CHR_WORK_CENTER = WT.CHR_WORK_CENTER AND BLS.CHR_DATE = WT.CHR_DATE AND BLS.CHR_SHIFT = WT.CHR_SHIFT");
+
+        if($query->num_rows() > 0){
+            return  $query->row()->INT_LOADING_TIME;
+        }else{
+            return 0;
+        }
+    }
+
+    //must be update
+    public function get_data_production_activity_by_date($date, $where_wc){
+        $query = $this->db->query("SELECT CHR_WO_NUMBER
+        ,CHR_WORK_CENTER
+        ,CHR_DATE
+        ,INT_SHIFT
+        ,CASE INT_FLG_SHIFT WHEN 1 THEN 'L' ELSE 'N' END AS FLG_SHIFT
+        ,INT_TARGET
+        ,INT_TARGET_RUNTIME
+        ,INT_PLAN_CT
+        ,INT_PLAN_TT
+        ,INT_ACTUAL
+        ,INT_TOTAL_OK
+        ,ISNULL(INT_TOTAL_NG,0) INT_TOTAL_NG
+        ,CHR_CREATED_DATE
+        ,CHR_CREATED_TIME
+        ,CHR_START_PROD
+        ,CHR_STOP_PROD
+        ,CHR_START_MEETING
+        ,CHR_STOP_MEETING
+        ,CHR_START_BREAK1
+        ,CHR_STOP_BREAK1
+        ,CHR_START_BREAK2
+        ,CHR_STOP_BREAK2
+        ,CHR_START_BREAK3
+        ,CHR_STOP_BREAK3
+        ,CHR_START_BREAK4
+        ,CHR_STOP_BREAK4
+        ,CHR_START_CLEANING
+        ,CHR_STOP_CLEANING
+        -- ,ROUND(ISNULL(INT_PRODUCTION_TIME / NULLIF(CONVERT(FLOAT, INT_PLAN_CT),0),0),2) AS AVG_CT_STD
+        -- ,ROUND(ISNULL(INT_TOTAL_OK / NULLIF(CONVERT(FLOAT, INT_TARGET_RUNTIME),0)*100,0),2) AS EFF
+        -- ,ROUND(ISNULL(ISNULL(INT_TOTAL_NG,0) / NULLIF(CONVERT(FLOAT, INT_PLAN_CT),0)*100,0),2) AS REJECT
+        -- ,ROUND(ISNULL(INT_UNPLANNED_DOWNTIME / (INT_PRODUCTION_TIME/NULLIF(CONVERT(FLOAT, INT_PLAN_CT),0)) / NULLIF(CONVERT(FLOAT, INT_PLAN_CT),0),0)*100,2) AS LS
+        ,DATEDIFF(MINUTE, CHR_START_PROD,CHR_STOP_PROD) AS NORMAL_TIME
+        ,CASE INT_OPERATING_TIME WHEN 0 THEN '-' ELSE CONVERT(CHAR(8),DATEADD(SECOND,INT_OPERATING_TIME,0),108) END AS INT_OPERATING_TIME
+        ,CASE INT_PLANNED_DOWNTIME WHEN 0 THEN '-' ELSE CONVERT(CHAR(8),DATEADD(SECOND,INT_PLANNED_DOWNTIME,0),108) END AS INT_PLANNED_DOWNTIME
+        ,CASE INT_PRODUCTION_TIME WHEN 0 THEN '-' ELSE CONVERT(CHAR(8),DATEADD(SECOND,INT_PRODUCTION_TIME,0),108) END AS INT_PRODUCTION_TIME
+        ,CASE INT_UNPLANNED_DOWNTIME WHEN 0 THEN '-' ELSE CONVERT(CHAR(8),DATEADD(SECOND,INT_UNPLANNED_DOWNTIME,0),108) END AS INT_UNPLANNED_DOWNTIME
+        ,CASE INT_PRODUCTION_RUNTIME WHEN 0 THEN '-' ELSE CONVERT(CHAR(8),DATEADD(SECOND,INT_PRODUCTION_RUNTIME,0),108) END AS INT_PRODUCTION_RUNTIME
+        ,CASE INT_OPERATING_TIME WHEN 0 THEN '-' ELSE INT_OPERATING_TIME/60 END AS INT_OPERATING_TIME_MINUTE
+        ,CASE INT_PLANNED_DOWNTIME WHEN 0 THEN '-' ELSE INT_PLANNED_DOWNTIME/60 END AS INT_PLANNED_DOWNTIME_MINUTE
+        ,CASE INT_PRODUCTION_TIME WHEN 0 THEN '-' ELSE INT_PRODUCTION_TIME/60 END AS INT_PRODUCTION_TIME_MINUTE
+        ,CASE INT_UNPLANNED_DOWNTIME WHEN 0 THEN '-' ELSE INT_UNPLANNED_DOWNTIME/60 END AS INT_UNPLANNED_DOWNTIME_MINUTE
+        ,CASE INT_PRODUCTION_RUNTIME WHEN 0 THEN '-' ELSE INT_PRODUCTION_RUNTIME/60 END AS INT_PRODUCTION_RUNTIME_MINUTE
+        ,ROUND(CONVERT(FLOAT, NULLIF(INT_PRODUCTION_RUNTIME,0)) / CONVERT(FLOAT, NULLIF(INT_PRODUCTION_TIME,0)) * 100,2) AS INT_AVAILABILITY
+        ,ROUND(CONVERT(FLOAT, INT_TOTAL_OK) / CONVERT(FLOAT, NULLIF(INT_TARGET_RUNTIME,0)) * 100,2) AS INT_PRODUCTIVITY
+        ,ROUND(CONVERT(FLOAT, INT_TOTAL_OK) / CONVERT(FLOAT, NULLIF((INT_TOTAL_OK + INT_TOTAL_NG),0)) * 100,2) AS INT_QUALITY
+        ,ROUND((
+        (CONVERT(FLOAT, NULLIF(INT_PRODUCTION_RUNTIME,0)) / CONVERT(FLOAT, NULLIF(INT_PRODUCTION_TIME,0)) * 100) * 
+        (CONVERT(FLOAT, INT_TOTAL_OK) / CONVERT(FLOAT, NULLIF(INT_TARGET_RUNTIME,0)) * 100 ) *
+        (CONVERT(FLOAT, INT_TOTAL_OK) / CONVERT(FLOAT, NULLIF((INT_TOTAL_OK + INT_TOTAL_NG),0)) * 100 )
+        )/ 10000,2) AS INT_OEE
+         FROM PRD.TM_PRODUCTION_ACTIVITY WHERE CHR_DATE = '$date' $where_wc AND CHR_WORK_CENTER NOT IN ('PK0002','PK0003','PK0004')
+         ORDER BY CHR_WO_NUMBER ASC");
+
+        return $query->result();
+    }
+
+    public function get_data_production_activity_detail_by_date($date, $work_center){
+        $query = $this->db->query("SELECT * FROM PRD.TT_PRODUCTION_ACTIVITY_DETAIL WHERE CHR_WO_NUMBER LIKE '$work_center/$date/SHIFT%'
+         AND CHR_WORK_CENTER NOT IN ('PK0002','PK0003','PK0004')
+         ORDER BY CHR_WO_NUMBER ASC, INT_PR_SEQUENCE ASC");
+
+        return $query->result();
+    }
+
+    //must be update
+    function get_data_efficiency_per_group_by_date($group, $date){
+
+        $query = $this->db->query("SELECT CHR_WORK_CENTER, ISNULL(ROUND((
+            (CONVERT(FLOAT, SUM(NULLIF(INT_PRODUCTION_RUNTIME,0))) / CONVERT(FLOAT, SUM(NULLIF(INT_PRODUCTION_TIME,0))) * 100) * 
+            (CONVERT(FLOAT, SUM(INT_TOTAL_OK)) / CONVERT(FLOAT, SUM(NULLIF(INT_TARGET_RUNTIME,0))) * 100 ) *
+            (CONVERT(FLOAT, SUM(INT_TOTAL_OK)) / CONVERT(FLOAT, SUM(NULLIF((INT_TOTAL_OK + INT_TOTAL_NG),0))) * 100 )
+            )/ 10000,2),0) AS OEE
+        FROM PRD.TM_PRODUCTION_ACTIVITY A INNER JOIN TM_DIRECT_BACKFLUSH_GENERAL BG ON BG.CHR_WCENTER = A.CHR_WORK_CENTER
+        WHERE CHR_DATE = '$date' AND BG.INT_PRODUCT_CODE = $group AND CHR_WORK_CENTER NOT IN ('PK0002','PK0003','PK0004')
+        AND A.CHR_WO_NUMBER IN (SELECT CHR_WO_NUMBER FROM TT_PRODUCTION_RESULT WHERE CHR_DATE = '$date' GROUP BY CHR_WO_NUMBER)
+        GROUP BY CHR_WORK_CENTER");
+
+        if ($query->num_rows() > 0) {
+            return $query->result();
+        } else {
+            return false;
+        }
+
+    }
+
+    function get_activity_all_time($work_center, $date){
+        $query = $this->db->query("SELECT 1 no, 'Production Time' AS DESCRIPTION, SUM(INT_PRODUCTION_TIME)/60 AS DURATION, 'slave' AS STACK, '#6af770' AS COLOR FROM PRD.TM_PRODUCTION_ACTIVITY WHERE CHR_WORK_CENTER = '$work_center' AND CHR_DATE ='$date'
+        UNION ALL 
+        SELECT 2, 'Bridging & Break + 3S' , SUM(INT_PLANNED_DOWNTIME)/60 , 'slave', '#b4fab7' FROM PRD.TM_PRODUCTION_ACTIVITY WHERE CHR_WORK_CENTER = '$work_center' AND CHR_DATE ='$date'  ORDER BY no DESC");
+        
+        return $query->result();
+    }
+
+    function get_activity_availability($work_center, $date){
+        $query = $this->db->query("SELECT 1 no, 'Production Time' AS DESCRIPTION, SUM(INT_PRODUCTION_TIME)/60 DURATION, 'master' AS STACK, '#d60909' AS COLOR  FROM PRD.TM_PRODUCTION_ACTIVITY WHERE CHR_WORK_CENTER = '$work_center' AND CHR_DATE ='$date'
+        UNION ALL 
+        SELECT 3, 'Line Stop' , SUM(INT_UNPLANNED_DOWNTIME)/60 , 'slave', '#ff9e9e' FROM PRD.TM_PRODUCTION_ACTIVITY WHERE CHR_WORK_CENTER = '$work_center' AND CHR_DATE ='$date' 
+        UNION ALL 
+        SELECT 2, 'Production Runtime' , SUM(INT_PRODUCTION_RUNTIME)/60 , 'slave', '#f73434' FROM PRD.TM_PRODUCTION_ACTIVITY WHERE CHR_WORK_CENTER = '$work_center' AND CHR_DATE ='$date' ORDER BY no DESC");
+        
+        return $query->result();
+    }
+
+    //must be update
+    function get_activity_performance($work_center, $date){
+        $query = $this->db->query("SELECT 1 no, 'Target based CT' AS DESCRIPTION, SUM(INT_TARGET_RUNTIME) DURATION, 'master' AS STACK, '#025a9e' AS COLOR  FROM PRD.TM_PRODUCTION_ACTIVITY WHERE CHR_WORK_CENTER = '$work_center' AND CHR_DATE ='$date'
+        UNION ALL 
+        SELECT 3, 'Speed Loss' , SUM(INT_TARGET_RUNTIME) - (SUM(INT_TOTAL_OK) + SUM(INT_TOTAL_NG) ) , 'slave', '#b8e0ff' FROM PRD.TM_PRODUCTION_ACTIVITY WHERE CHR_WORK_CENTER = '$work_center' AND CHR_DATE ='$date' 
+        UNION ALL 
+        SELECT 2, 'Actual Prod' , SUM(INT_TOTAL_OK) + SUM(INT_TOTAL_NG) , 'slave', '#3ca1f0' FROM PRD.TM_PRODUCTION_ACTIVITY WHERE CHR_WORK_CENTER = '$work_center' AND CHR_DATE ='$date' ORDER BY no DESC");
+        
+        return $query->result();
+    }
+
+    function get_activity_quality($work_center, $date){
+        $query = $this->db->query("SELECT 1 no, 'Actual Prod' AS DESCRIPTION, SUM(INT_TOTAL_OK) + SUM(INT_TOTAL_NG)  DURATION, 'master' AS STACK, '#ffc414' AS COLOR  FROM PRD.TM_PRODUCTION_ACTIVITY WHERE CHR_WORK_CENTER = '$work_center' AND CHR_DATE ='$date'
+        UNION ALL 
+        SELECT 3, 'Reject' , SUM(INT_TOTAL_NG) , 'slave', '#fce397' FROM PRD.TM_PRODUCTION_ACTIVITY WHERE CHR_WORK_CENTER = '$work_center' AND CHR_DATE ='$date' 
+        UNION ALL 
+        SELECT 2, 'Net Actual Prod' , SUM(INT_TOTAL_OK) , 'slave', '#fcfc21' FROM PRD.TM_PRODUCTION_ACTIVITY WHERE CHR_WORK_CENTER = '$work_center' AND CHR_DATE ='$date' ORDER BY no DESC");
+
+        return $query->result();
+    }
+
+    //must be update
+    function get_percentage_activities($work_center, $date){
+        $query = $this->db->query("SELECT ROUND(CONVERT(FLOAT, SUM(NULLIF(INT_PRODUCTION_RUNTIME,0))) / CONVERT(FLOAT, SUM(NULLIF(INT_PRODUCTION_TIME,0))) * 100,2) AS INT_AVAILABILITY,
+        ROUND(CONVERT(FLOAT, SUM(INT_TOTAL_OK)) / CONVERT(FLOAT, SUM(NULLIF(INT_TARGET_RUNTIME,0))) * 100,2) AS INT_PRODUCTIVITY,
+        ROUND(CONVERT(FLOAT, SUM(INT_TOTAL_OK)) / CONVERT(FLOAT, SUM(NULLIF((INT_TOTAL_OK + INT_TOTAL_NG),0))) * 100,2) AS INT_QUALITY,
+        ROUND((
+        (CONVERT(FLOAT, SUM(NULLIF(INT_PRODUCTION_RUNTIME,0))) / CONVERT(FLOAT, SUM(NULLIF(INT_PRODUCTION_TIME,0))) * 100) * 
+        (CONVERT(FLOAT, SUM(INT_TOTAL_OK)) / CONVERT(FLOAT, SUM(NULLIF(INT_TARGET_RUNTIME,0))) * 100 ) *
+        (CONVERT(FLOAT, SUM(INT_TOTAL_OK)) / CONVERT(FLOAT, SUM(NULLIF((INT_TOTAL_OK + INT_TOTAL_NG),0))) * 100 )
+        )/ 10000,2) AS INT_OEE
+            FROM PRD.TM_PRODUCTION_ACTIVITY WHERE CHR_WORK_CENTER = '$work_center' AND CHR_DATE ='$date'
+            AND CHR_WO_NUMBER IN (SELECT CHR_WO_NUMBER FROM TT_PRODUCTION_RESULT WHERE CHR_DATE = '$date' GROUP BY CHR_WO_NUMBER)");
+        
+        return $query->row();
+    }
+
+    function get_act_by_period($period){
+        $query = $this->db->query("DECLARE
+        @date varchar(6) = '$period'
+        
+        
+        ;WITH PRODUCTION_RESULT(CHR_WORK_CENTER, INT_TOTAL_OK, INT_TOTAL_NG) AS (
+            SELECT CHR_WORK_CENTER, SUM(INT_TOTAL_QTY), SUM(INT_TOTAL_NG) 
+            FROM TT_PRODUCTION_RESULT 
+            WHERE LEFT(CHR_DATE,6) = @date AND CHR_WO_NUMBER <> '-'
+            GROUP BY CHR_WORK_CENTER
+        )
+        , OEE_DETAIL (CHR_WORK_CENTER, INT_OPERATING_TIME, INT_PLANNED_DOWNTIME, INT_PRODUCTION_TIME, INT_UNPLANNED_DOWNTIME, INT_PRODUCTION_RUNTIME,
+        INT_CT, INT_TARGET_RUNTIME, INT_TOTAL_OK, INT_TOTAL_NG, INT_AVAILABILITY, INT_PRODUCTIVITY,INT_QUALITY, OEE) AS (
+            SELECT ACT.CHR_WORK_CENTER, 
+            SUM(INT_OPERATING_TIME) INT_OPERATING_TIME,
+            SUM(INT_PLANNED_DOWNTIME) INT_PLANNED_DOWNTIME,
+            SUM(INT_PRODUCTION_TIME) INT_PRODUCTION_TIME, 
+            SUM(INT_UNPLANNED_DOWNTIME) INT_UNPLANNED_DOWNTIME, 
+            SUM(INT_PRODUCTION_RUNTIME) INT_PRODUCTION_RUNTIME,
+            ROUND(ISNULL(SUM(INT_PRODUCTION_TIME) / NULLIF(CONVERT(FLOAT, SUM(INT_TARGET_RUNTIME)),0),0),2) AS INT_CT,
+            SUM(INT_TARGET_RUNTIME),
+            RES.INT_TOTAL_OK, RES.INT_TOTAL_NG,
+            
+            ROUND(CONVERT(FLOAT, SUM(NULLIF(INT_PRODUCTION_RUNTIME,0))) / CONVERT(FLOAT, SUM(NULLIF(INT_PRODUCTION_TIME,0))) * 100,2) AS INT_AVAILABILITY,
+            ROUND(CONVERT(FLOAT, SUM(ACT.INT_TOTAL_OK)) / CONVERT(FLOAT, SUM(NULLIF(INT_TARGET_RUNTIME,0))) * 100,2) AS INT_PRODUCTIVITY,
+            ROUND(CONVERT(FLOAT, SUM(ACT.INT_TOTAL_OK)) / CONVERT(FLOAT, SUM(NULLIF((ACT.INT_TOTAL_OK + ACT.INT_TOTAL_NG),0))) * 100,2) AS INT_QUALITY,
+            
+            ISNULL(ROUND((
+            (CONVERT(FLOAT, SUM(NULLIF(INT_PRODUCTION_RUNTIME,0))) / CONVERT(FLOAT, SUM(NULLIF(INT_PRODUCTION_TIME,0))) * 100) * 
+            (CONVERT(FLOAT, SUM(ACT.INT_TOTAL_OK)) / CONVERT(FLOAT, SUM(NULLIF(INT_TARGET_RUNTIME,0))) * 100 ) *
+            (CONVERT(FLOAT, SUM(ACT.INT_TOTAL_OK)) / CONVERT(FLOAT, SUM(NULLIF((ACT.INT_TOTAL_OK + ACT.INT_TOTAL_NG),0))) * 100 )
+            )/ 10000,2),0) AS OEE
+                    
+            FROM PRD.TM_PRODUCTION_ACTIVITY ACT 
+            INNER JOIN PRODUCTION_RESULT RES ON ACT.CHR_WORK_CENTER = RES.CHR_WORK_CENTER
+            WHERE LEFT(ACT.CHR_DATE,6) = @date
+            AND ACT.CHR_WORK_CENTER NOT IN ('PK0002','PK0003','PK0004')
+            GROUP BY ACT.CHR_WORK_CENTER, RES.INT_TOTAL_OK, RES.INT_TOTAL_NG
+        )
+        SELECT CHR_WORK_CENTER, INT_OPERATING_TIME, INT_PLANNED_DOWNTIME, INT_PRODUCTION_TIME, INT_UNPLANNED_DOWNTIME, INT_PRODUCTION_RUNTIME,
+        INT_TARGET_RUNTIME, INT_CT, INT_TOTAL_OK, INT_TOTAL_NG, INT_AVAILABILITY, INT_PRODUCTIVITY,INT_QUALITY, OEE
+        FROM OEE_DETAIL
+        UNION ALL
+        SELECT LEFT(CHR_WORK_CENTER,4)+'Subtotal' AS CHR_WORK_CENTER, 
+        SUM(INT_OPERATING_TIME) INT_OPERATING_TIME,
+        SUM(INT_PLANNED_DOWNTIME) INT_PLANNED_DOWNTIME, 
+        SUM(INT_PRODUCTION_TIME) INT_PRODUCTION_TIME, 
+        SUM(INT_UNPLANNED_DOWNTIME) INT_UNPLANNED_DOWNTIME, 
+        SUM(INT_PRODUCTION_RUNTIME) INT_PRODUCTION_RUNTIME,
+        SUM(INT_TARGET_RUNTIME) INT_TARGET_RUNTIME,
+        ROUND(AVG(INT_CT),2) INT_CT, 
+        SUM(INT_TOTAL_OK) INT_TOTAL_OK, 
+        SUM(INT_TOTAL_NG) INT_TOTAL_NG, 
+        ROUND(AVG(INT_AVAILABILITY),2) INT_AVAILABILITY, 
+        ROUND(AVG(INT_PRODUCTIVITY),2) INT_PRODUCTIVITY,
+        ROUND(AVG(INT_QUALITY),2) INT_QUALITY, 
+        ROUND(AVG(OEE),2) OEE
+        FROM OEE_DETAIL GROUP BY LEFT(CHR_WORK_CENTER,4)+'Subtotal'
+        ORDER BY CHR_WORK_CENTER ASC");
+
+        return $query->result();
+    }
+
+}

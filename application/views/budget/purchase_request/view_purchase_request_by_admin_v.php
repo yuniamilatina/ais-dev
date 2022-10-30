@@ -1,0 +1,159 @@
+
+<script language="JavaScript">
+    function replaceChars(entry) {
+        out = "."; // replace this
+        add = ""; // with this
+        temp = "" + entry; // temporary holder
+
+        while (temp.indexOf(out) > -1) {
+            pos = temp.indexOf(out);
+            temp = "" + (temp.substring(0, pos) + add +
+                    temp.substring((pos + out.length), temp.length));
+        }
+        document.g.DEC_PRICE_PER_UNIT.value = temp;
+    }
+
+    function trimNumber(s) {
+        while (s.substr(0, 1) == '0' && s.length > 1) {
+            s = s.substr(1, 9999);
+        }
+        while (s.substr(0, 1) == '.' && s.length > 1) {
+            s = s.substr(1, 9999);
+        }
+        return s;
+    }
+
+    function formatangka(objek) {
+        a = objek.value;
+        b = a.replace(/[^\d]/g, "");
+        c = "";
+        panjang = b.length;
+        j = 0;
+        for (i = panjang; i > 0; i--) {
+            j = j + 1;
+            if (((j % 3) == 1) && (j != 1)) {
+                c = b.substr(i - 1, 1) + "." + c;
+            } else {
+                c = b.substr(i - 1, 1) + c;
+            }
+        }
+        objek.value = trimNumber(c);
+    }
+
+    function angka(objek) {
+        a = objek.value;
+        b = a.replace(/[^\d]/g, "");
+        c = "";
+        panjang = b.length;
+        j = 0;
+        for (i = panjang; i > 0; i--) {
+            j = j + 1;
+            if (((j % 3) == 1) && (j != 1)) {
+                c = b.substr(i - 1, 1) + "" + c;
+            } else {
+                c = b.substr(i - 1, 1) + c;
+            }
+        }
+        objek.value = Number(c);
+    }
+
+    function Number(s) {
+        while (s.substr(0, 1) == '0' && s.length > 1) {
+            s = s.substr(1, 9999);
+        }
+        while (s.substr(0, 1) == '' && s.length > 1) {
+            s = s.substr(1, 9999);
+        }
+        return s;
+    }
+
+</script>
+<?php $session = $this->session->all_userdata(); ?>
+
+<aside class="right-side">
+    <section class="content-header">
+        <ol class="breadcrumb">
+            <li><a href="<?php echo base_url('index.php/basis/home_c/') ?>">Home</a></li>
+            <li><a href="<?php echo base_url('index.php/budget/purchase_request_c/') ?>">Manage Purchase Request</a></li>            
+            <li><a href="#"><strong>View Detail Purchase Request</strong></a></li>
+        </ol>
+    </section>
+
+    <section class="content">
+        <?php
+        if ($msg != NULL) {
+            echo $msg;
+        }
+        ?>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="grid">
+                    <div class="grid-header">
+                        <span class="grid-title"><strong>PR NO </strong><?php echo $data->INT_NO_PUREQ; ?></span>
+                    </div>
+                    <div class="grid-body">
+                        <table class="table table-condensed table-bordered table-striped" cellspacing="0" width="100%">
+                            <tr><td><strong>Fiscal Year</strong></td><td><?php echo $data->CHR_FISCAL_YEAR; ?></td></tr>
+                            <tr><td><strong>Department</strong></td><td><?php echo $data->CHR_DEPT_DESC; ?></td></tr>
+                            <tr><td><strong>Section</strong></td><td><?php echo $data->CHR_SECTION_DESC; ?></td></tr>
+                            <tr><td><strong>Month Estimate</strong></td><td><?php echo $data->INT_MONTH_REAL; ?></td></tr>
+                            <?php $mount = number_format($data->DEC_TOTAL, 0, '', '.'); ?>
+                            <tr><td><strong>Total</strong></td><td><?php echo 'Rp '. $mount; ?></td></tr>
+                        </table>
+                    </div>
+                    <div class="grid-body">
+                        <?php
+                        echo anchor('budget/purchase_request_c', 'Back', 'class="btn btn-default" data-toggle="tooltip" data-placement="right" title="Back to manage"');
+                        ?>
+                    </div>
+                </div>
+            </div>
+
+            <!--Detail Purchase Request-->
+            <div class="col-md-8">
+                <div class="grid">
+                    <div class="grid-header">
+                        <i class="fa fa-file-text-o"></i>
+                        <span class="grid-title"><strong>DETAIL</strong> PURCHASE REQUEST</span>
+                        <div class="pull-right  grid-tools">
+                        </div>
+                    </div>
+                    <div class="grid-body">
+                        <table id="dataTables1" class="table table-condensed table-striped display" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>No Budget</th>
+                                    <th>Price per Unit</th>
+                                    <th>Qty</th>
+                                    <th>Total</th>
+                                    <th>Purchase Item</th>
+                                    <th>PIC Requestor</th>
+                                    <th>Supplier Name</th>
+                                    <th>Estimation Months</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                foreach ($data_detail as $isi) {
+                                    echo "<tr class='gradeX'>";
+                                    echo "<td>$isi->INT_NO_BUDGET</td>";
+                                    $mount = number_format($isi->DEC_PRICE_PER_UNIT, 0, '', '.');
+                                    $mount_total = number_format($isi->TOTAL, 0, '', '.');
+                                    echo "<td>Rp $mount</td>";
+                                    echo "<td>$isi->INT_QUANTITY</td>";
+                                    echo "<td>Rp $mount_total</td>";
+                                    echo "<td>$isi->CHR_PURCHASE_ITEM</td>";
+                                    echo "<td>$isi->CHR_REQUESTOR</td>";
+                                    echo "<td>$isi->CHR_SUPPLIER_NAME</td>";
+                                    echo "<td>$isi->INT_MONTH_ESTIMATE</td>";
+                                    echo "</tr>";
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</aside>

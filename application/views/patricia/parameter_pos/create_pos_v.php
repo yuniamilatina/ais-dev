@@ -1,0 +1,50 @@
+
+<aside class="right-side">
+    <section class="content-header">
+        <ol class="breadcrumb">
+            <li><a href="<?php echo base_url('index.php/basis/home_c/') ?>"><span>Home</span></a></li>
+            <li> <a href="<?php echo base_url('index.php/patricia/master_spec_part_c/parameter_pos') ?>">MANAGE PARAMETER CEK</a></li>
+            <li> <a href="#"><strong>CREATE PARAMETER CEK</strong></a></li>
+        </ol>
+    </section>
+    <section class="content">
+        
+        <div class="row">
+            <div class="col-md-12">
+                <div class="grid">
+                    <div class="grid-header">
+                        <i class="fa fa-thumb-tack"></i>
+                        <span class="grid-title" id="stat-create2"><strong id="stat-create">CREATE PARAMETER CEK</strong></span>
+                        <div class="pull-right grid-tools">
+                            <a data-widget="collapse" title="Collapse" id="collapse-header"><i class="fa fa-chevron-up"></i></a>
+                        </div>
+                    </div>
+                    <div class="grid-body">
+                    <?php
+                    echo form_open_multipart('patricia/master_spec_part_c/save_param_pos', 'class="form-horizontal"');
+                    ?>
+                   
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Parameter Description</label>
+                            <div class="col-sm-6">
+                                <textarea name="CHR_PARAMS_DESC" rows="5" cols="500" class="form-control" placeholder="Detail parameter" maxlength="500"></textarea>
+                            </div>
+                    </div>
+                                        
+                    <div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-5">
+                                <div class="btn-group">
+                                    <button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> Save</button>
+                                    <?php
+                                    echo anchor('patricia/master_spec_part_c/parameter_pos', 'Cancel', 'class="btn btn-default"');
+                                    echo form_close();
+                                    ?>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>           
+        </div>
+        </div>
+    </section>
+</aside>
