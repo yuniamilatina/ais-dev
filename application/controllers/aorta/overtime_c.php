@@ -95,6 +95,7 @@ class overtime_c extends CI_Controller
                         $x = 1;
                     }
             }
+        }
         }else {
             $x = 0;
             foreach ($data['all_section'] as $value) {
@@ -107,6 +108,7 @@ class overtime_c extends CI_Controller
                     if (trim($value->KODE) == trim($section)) {
                         $x = 1;
                     }
+                }
             }
         }
 
