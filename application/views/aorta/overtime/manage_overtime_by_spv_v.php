@@ -148,6 +148,10 @@
                                             $color = 'background:#7DD488;color:#fff;';
                                             $display = 'disabled';
                                         }
+                                        if ($isi->CEK_KADEP == 1) {
+                                            $color = 'background:#7DD488;color:#fff;';
+                                            $display = 'disabled';
+                                        }
                                         if ($isi->CEK_SPV == '-' && $isi->CEK_KADEP == '-' && $isi->CEK_GM == '-') {
                                             $color = '';
                                             $display = 'disabled';
@@ -169,7 +173,7 @@
                                             <?php
                                             if ($isi->CEK_SPV == '-') {
                                                 echo '-';
-                                            } else if ($isi->CEK_SPV == 0) {
+                                            } else if ($isi->CEK_SPV == 0 AND $isi->CEK_KADEP == 0) {
                                             ?>
                                                 <a onclick="get_data_detail(<?php echo $isi->NO_SEQUENCE ?>);" data-toggle="modal" data-target="#modalDetailOvertime<?php echo $isi->NO_SEQUENCE ?>" data-placement="left" data-toggle="tooltip" title="View Detail" class="label label-info"><span class="fa fa-search"></span></a>
                                                 <a href="<?php echo base_url('index.php/aorta/overtime_c/approve_overtime_by_spv') . "/" . $isi->NO_SEQUENCE . "/" . $period . "/" . $dept . "/" . $section; ?>" class="label label-primary" data-placement="left" data-toggle="tooltip" title="Approve" onclick="return confirm('Are you sure want to Approve this overtime with code : ' + <?php echo $isi->NO_SEQUENCE ?>);"><span class="fa fa-thumbs-up"></span></a>
