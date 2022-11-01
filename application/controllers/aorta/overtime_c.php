@@ -1012,7 +1012,12 @@ class overtime_c extends CI_Controller
         $data['section'] = $section;
         $data['period'] = $period;
 
-        $data['data'] = $this->overtime_m->get_data_overtime_by_mgr(trim($dept), $period, $section);
+        if ($dept == 'MIS' || $dept == 'MSU') {
+            $data['data'] = $this->overtime_m->get_data_overtime_by_mgr(trim($dept), $period, $section);
+        }else {
+            $data['data'] = $this->overtime_m->get_data_overtime_by_spv(trim($dept), $period, $section);
+        }
+
         $data['content'] = 'aorta/overtime/manage_overtime_by_mgr_v';
         $this->load->view($this->layout, $data);
     }
@@ -1533,7 +1538,7 @@ class overtime_c extends CI_Controller
         $data['detail_quota_group'] = $this->overtime_m->get_detail_quota_group_by_periode($period, $data['group']);
         $data['quota_usage_dept'] = $this->overtime_m->get_detail_quota_group_per_dept_by_periode_gm($period, $data['group']);
 
-        $data['data'] = $this->overtime_m->get_data_overtime_by_mgr($dept, $period, $section);
+        $data['data'] = $this->overtime_m->get_data_overtime_by_spv($dept, $period, $section);
         $data['content'] = 'aorta/overtime/manage_overtime_by_mgr_and_gm_v';
         $this->load->view($this->layout, $data);
     }
