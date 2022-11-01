@@ -164,8 +164,9 @@ class overtime_m extends CI_Model
                 GROUP BY CEK_GM, CEK_KADEP, CEK_SPV, KD_SECTION, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, ALASAN
                 ")->result();
         }
-
     }
+
+    
 
     function get_data_overtime_by_mgr($dept, $period, $section)
     {
@@ -192,13 +193,13 @@ class overtime_m extends CI_Model
 
         if($section == 'ALL'){
             return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, KD_SECTION, ALASAN
-            FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME LIKE '$period%' AND KD_DEPT = '$dept' AND CEK_SPV = '1' AND CEK_KADEP = '1'
+            FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME LIKE '$period%' AND KD_DEPT = '$dept' AND CEK_KADEP = '1'
                     GROUP BY CEK_GM, CEK_KADEP, CEK_SPV, KD_SECTION, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, ALASAN
                     ORDER BY CEK_GM
                     ")->result();
         }else{
             return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, KD_SECTION, ALASAN
-            FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME LIKE '$period%' AND KD_DEPT = '$dept' AND KD_SECTION = '$section' AND CEK_SPV = '1' AND CEK_KADEP = '1'
+            FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME LIKE '$period%' AND KD_DEPT = '$dept' AND KD_SECTION = '$section' AND CEK_KADEP = '1'
                     GROUP BY CEK_GM, CEK_KADEP, CEK_SPV, KD_SECTION, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, ALASAN
                     ORDER BY CEK_GM
                     ")->result();
@@ -576,7 +577,7 @@ class overtime_m extends CI_Model
     function get_employee_by_section($dept, $section)
     {
         $aortadb = $this->load->database("aorta", TRUE);
-        $query = $aortadb->query("SELECT NPK, NAMA FROM TM_KRY WHERE KD_DEPT = '$dept' AND KD_SECTION = '$section' FLAG_DELETE = 0 AND position IS NOT NULL")->result();
+        $query = $aortadb->query("SELECT NPK, NAMA FROM TM_KRY WHERE KD_DEPT = '$dept' AND KD_SECTION = '$section' AND FLAG_DELETE = 0 AND position IS NOT NULL")->result();
         return $query;
     }
 
