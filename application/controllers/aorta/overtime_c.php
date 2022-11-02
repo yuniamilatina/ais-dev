@@ -764,7 +764,7 @@ class overtime_c extends CI_Controller
             $data['all_dept'] = $this->dept_m->get_data_dept($id_dept)->result();
         }
 
-        $data['all_section'] = $this->overtime_m->get_section_by_dept($dept);
+        $data['all_section'] = $this->overtime_m->get_all_section_drop($dept);
 
         if ($section == NULL) {
             $section = 'ALL';
