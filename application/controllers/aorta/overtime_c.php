@@ -19,6 +19,7 @@ class overtime_c extends CI_Controller
         $this->load->model('organization/division_m');
         $this->load->model('organization/groupdept_m');
         $this->load->model('organization/dept_m');
+        $this->load->model('basis/user_m');
     }
 
     function index($period = null, $dept = null, $section = null, $msg = NULL)
@@ -72,7 +73,7 @@ class overtime_c extends CI_Controller
             $data['all_dept'] = $this->dept_m->get_data_dept($id_dept)->result();
         }
 
-        $data['all_section'] = $this->overtime_m->get_section_overtime($dept);
+        $data['all_section'] = $this->overtime_m->get_all_section_drop($dept);
         $data['top_section'] = $this->overtime_m->get_top_section_overtime($dept);
 
         if ($section == NULL) {
@@ -792,6 +793,15 @@ class overtime_c extends CI_Controller
 
     function approve_form_overtime_by_spv()
     {
+        //GET NPK TO SEND NOTIFICATION
+        $session = $this->session->all_userdata();
+        $get_spkl = $this->overtime_m->get_notif_overtime_by_no_spkl($nospkl);
+        $dept_ais = $get_spkl->KD_DEPT;
+        $notif_desc = $get_spkl->ALASAN;
+        $id_dept = $this->dept_m->get_id_dept_by_dept_ais($dept_ais);
+        $npk_mgr = $this->user_m->get_npk_dept($id_dept);
+        
+        //UPDATE APPROVAL SPV
         $nospkl = $this->input->post("NO_SEQUENCE");
         $section = $this->input->post("CHR_SECTION");
         $dept = $this->input->post("CHR_DEPT");
@@ -834,11 +844,42 @@ class overtime_c extends CI_Controller
 
         $this->history_m->save($data_history);
 
+        //SEND NOTIFICATION
+        foreach($npk_mgr as $mgr){
+            $seq_id = $this->notification_m->generate_id();
+
+            $data_notif = array(
+                    'INT_ID_NOTIF' => $seq_id,
+                    'CHR_NPK' => $mgr->CHR_NPK,
+                    'INT_ID_APP' => '19',
+                    'CHR_NOTIF_TITLE' => $nospkl,
+                    'CHR_NOTIF_DESC' => $notif_desc,
+                    'CHR_LINK' => "aorta/overtime_c/prepare_approve_ot_by_mgr/" . str_replace('/','<',$period),
+                    'CHR_CREATED_BY' => $session['USERNAME'],
+                    'CHR_CREATED_DATE' => date('Ymd'),
+                    'CHR_CREATED_TIME' => date('His')
+                );
+            $this->notification_m->insert_notification($data_notif);
+        } 
+
         redirect($this->back_to_approve_spv . $period . '/' . $dept . '/' . $section . '/' . $msg_no);
+
     }
+
 
     function approve_overtime_by_spv($nospkl, $period, $dept, $section = null)
     {
+        //GET NPK TO SEND NOTIFICATION
+        $session = $this->session->all_userdata();
+        $get_spkl = $this->overtime_m->get_notif_overtime_by_no_spkl($nospkl);
+        $dept_ais = $get_spkl->KD_DEPT;
+        $notif_desc = $get_spkl->ALASAN;
+        $id_dept = $this->dept_m->get_id_dept_by_dept_ais($dept_ais);
+        $npk_mgr = $this->user_m->get_npk_dept($id_dept);
+        // print_r($npk_mgr);
+        // exit();
+        
+        // UPDATE APPROVAL SPV
         $created_by = $this->session->userdata('USERNAME');
         $date = date('Ymd');
         $time = date('His');
@@ -867,6 +908,24 @@ class overtime_c extends CI_Controller
 
         $this->history_m->save($data_history);
 
+        //SEND NOTIFICATION
+        foreach($npk_mgr as $mgr){
+            $seq_id = $this->notification_m->generate_id();
+
+            $data_notif = array(
+                    'INT_ID_NOTIF' => $seq_id,
+                    'CHR_NPK' => $mgr->CHR_NPK,
+                    'INT_ID_APP' => '19',
+                    'CHR_NOTIF_TITLE' => $nospkl,
+                    'CHR_NOTIF_DESC' => $notif_desc,
+                    'CHR_LINK' => "aorta/overtime_c/prepare_approve_ot_by_mgr/" . str_replace('/','<',$period),
+                    'CHR_CREATED_BY' => $session['USERNAME'],
+                    'CHR_CREATED_DATE' => date('Ymd'),
+                    'CHR_CREATED_TIME' => date('His')
+                );
+            $this->notification_m->insert_notification($data_notif);
+        } 
+        
         redirect($this->back_to_approve_spv . $period . '/' . $dept . '/' . $section . '/' . 4);
     }
 
@@ -1012,7 +1071,7 @@ class overtime_c extends CI_Controller
         $data['section'] = $section;
         $data['period'] = $period;
 
-        if ($dept == 'MIS' || $dept == 'MSU') {
+        if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO') {
             $data['data'] = $this->overtime_m->get_data_overtime_by_mgr(trim($dept), $period, $section);
         }else {
             $data['data'] = $this->overtime_m->get_data_overtime_by_spv(trim($dept), $period, $section);
@@ -1107,6 +1166,17 @@ class overtime_c extends CI_Controller
 
     function approve_overtime_by_mgr($nospkl, $period, $dept, $section = null)
     {
+        //GET NPK TO SEND NOTIFICATION
+        $session = $this->session->all_userdata();
+        $get_spkl = $this->overtime_m->get_notif_overtime_by_no_spkl($nospkl);
+        $dept_ais = trim($get_spkl->KD_DEPT);
+        $notif_desc = $get_spkl->ALASAN;
+        $id_group = $this->dept_m->get_id_groupdept_by_dept($dept_ais);
+        $npk_gm = $this->user_m->get_npk_groupdept($id_group);
+        // print_r($dept_ais);
+        // exit();
+        
+        // UPDATE APPROVAL MGR
         $created_by = $this->session->userdata('USERNAME');
         $date = date('Ymd');
         $time = date('His');
@@ -1134,6 +1204,24 @@ class overtime_c extends CI_Controller
         );
 
         $this->history_m->save($data_history);
+
+        //SEND NOTIFICATION
+        foreach($npk_gm as $gm){
+            $seq_id = $this->notification_m->generate_id();
+
+            $data_notif = array(
+                    'INT_ID_NOTIF' => $seq_id,
+                    'CHR_NPK' => $gm->CHR_NPK,
+                    'INT_ID_APP' => '19',
+                    'CHR_NOTIF_TITLE' => $nospkl,
+                    'CHR_NOTIF_DESC' => $notif_desc,
+                    'CHR_LINK' => "aorta/overtime_c/prepare_approve_ot_by_gm/" . str_replace('/','<',$period),
+                    'CHR_CREATED_BY' => $session['USERNAME'],
+                    'CHR_CREATED_DATE' => date('Ymd'),
+                    'CHR_CREATED_TIME' => date('His')
+                );
+            $this->notification_m->insert_notification($data_notif);
+        } 
 
         redirect($this->back_to_approve_mgr . $period . '/' . $dept . '/' . $section . '/' . 4);
     }
