@@ -34,7 +34,7 @@ class notification_m extends CI_Model {
     function get_notification_budget($npk) {
 
         $query = $this->db->query("
-            SELECT     a.INT_ID_NOTIF, a.CHR_NPK, a.INT_ID_APP, a.CHR_NOTIF_TITLE, a.CHR_NOTIF_DESC, a.CHR_LINK, b.CHR_ICON
+            SELECT a.INT_ID_NOTIF, a.CHR_NPK, a.INT_ID_APP, a.CHR_NOTIF_TITLE, a.CHR_NOTIF_DESC, a.CHR_LINK, b.CHR_ICON
             FROM TT_PORTAL_NOTIFICATION AS a INNER JOIN
             TM_APPLICATION AS b ON a.INT_ID_APP = b.INT_ID_APP
             WHERE (a.CHR_NPK = '" . $npk . "') AND (a.CHR_FLG_READ = '0' ) AND (a.INT_ID_APP = '4')");
@@ -193,6 +193,28 @@ class notification_m extends CI_Model {
             return false;
         }
         
+    }
+
+    function get_notification_aorta($npk) {
+
+        $query = $this->db->query("
+            SELECT a.INT_ID_NOTIF, a.CHR_NPK, a.INT_ID_APP, a.CHR_NOTIF_TITLE, a.CHR_NOTIF_DESC, a.CHR_LINK, b.CHR_ICON
+            FROM TT_PORTAL_NOTIFICATION AS a INNER JOIN
+            TM_APPLICATION AS b ON a.INT_ID_APP = b.INT_ID_APP
+            WHERE (a.CHR_NPK = '" . $npk . "') AND (a.CHR_FLG_READ = '0' ) AND (a.INT_ID_APP = '19')");
+
+        return $query->result();
+    }
+
+    function get_notification_aorta_total($npk) {
+
+        $query = $this->db->query("
+            SELECT COUNT(CHR_NPK) AS TOTAL
+            FROM TT_PORTAL_NOTIFICATION
+            WHERE (CHR_NPK = '" . $npk . "')  AND (CHR_FLG_READ = '0')  AND (INT_ID_APP = '19')
+            GROUP BY CHR_NPK");
+
+        return $query->result();
     }
 }
 
