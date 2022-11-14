@@ -219,16 +219,6 @@ class dept_m extends CI_Model {
         return $id_dept;
     }
 
-    function get_id_dept_by_dept_ais($dept_ais) {
-        $query = $this->db->query("SELECT INT_ID_DEPT FROM TM_DEPT where CHR_DEPT = '$dept' AND BIT_FLG_DEL = '0'");
-        if($query->num_rows() > 0){
-            $id_dept = $query->row()->INT_ID_DEPT;
-        } else {
-            $id_dept = '';
-        }        
-        return $id_dept;
-    }
-
     function get_id_div_by_id_dept($id_dept) {
         $query = $this->db->query("SELECT B.INT_ID_DIVISION FROM TM_DEPT as A
                                 inner join TM_GROUP_DEPT as B on B.INT_ID_GROUP_DEPT = A.INT_ID_GROUP_DEPT
