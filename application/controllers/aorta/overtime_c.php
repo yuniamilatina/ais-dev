@@ -734,7 +734,7 @@ class overtime_c extends CI_Controller
         $data['app'] = $this->role_module_m->get_app();
         $data['module'] = $this->role_module_m->get_module();
         $data['function'] = $this->role_module_m->get_function();
-        $data['sidebar'] = $this->role_module_m->side_bar(32);
+        $data['sidebar'] = $this->role_module_m->side_bar(359);
         $data['news'] = $this->news_m->get_news();
         $data['title'] = 'Approval OT';
         $data['msg'] = $msg;
@@ -851,7 +851,7 @@ class overtime_c extends CI_Controller
             $data_notif = array(
                     'INT_ID_NOTIF' => $seq_id,
                     'CHR_NPK' => $mgr->CHR_NPK,
-                    'INT_ID_APP' => '19',
+                    'INT_ID_APP' => '28',
                     'CHR_NOTIF_TITLE' => $nospkl,
                     'CHR_NOTIF_DESC' => $notif_desc,
                     'CHR_LINK' => "aorta/overtime_c/prepare_approve_ot_by_mgr/" . str_replace('/','<',$period),
@@ -872,9 +872,9 @@ class overtime_c extends CI_Controller
         //GET NPK TO SEND NOTIFICATION
         $session = $this->session->all_userdata();
         $get_spkl = $this->overtime_m->get_notif_overtime_by_no_spkl($nospkl);
-        $dept_ais = $get_spkl->KD_DEPT;
+        $dept_ais = trim($get_spkl->KD_DEPT);
         $notif_desc = $get_spkl->ALASAN;
-        $id_dept = $this->dept_m->get_id_dept_by_dept_ais($dept_ais);
+        $id_dept = $this->dept_m->get_id_dept_by_dept($dept);
         $npk_mgr = $this->user_m->get_npk_dept($id_dept);
         // print_r($npk_mgr);
         // exit();
@@ -915,7 +915,7 @@ class overtime_c extends CI_Controller
             $data_notif = array(
                     'INT_ID_NOTIF' => $seq_id,
                     'CHR_NPK' => $mgr->CHR_NPK,
-                    'INT_ID_APP' => '19',
+                    'INT_ID_APP' => '28',
                     'CHR_NOTIF_TITLE' => $nospkl,
                     'CHR_NOTIF_DESC' => $notif_desc,
                     'CHR_LINK' => "aorta/overtime_c/prepare_approve_ot_by_mgr/" . str_replace('/','<',$period),
@@ -1212,7 +1212,7 @@ class overtime_c extends CI_Controller
             $data_notif = array(
                     'INT_ID_NOTIF' => $seq_id,
                     'CHR_NPK' => $gm->CHR_NPK,
-                    'INT_ID_APP' => '19',
+                    'INT_ID_APP' => '28',
                     'CHR_NOTIF_TITLE' => $nospkl,
                     'CHR_NOTIF_DESC' => $notif_desc,
                     'CHR_LINK' => "aorta/overtime_c/prepare_approve_ot_by_gm/" . str_replace('/','<',$period),
