@@ -118,6 +118,8 @@
     $notification_total = array(); //$this->notification_m->get_notification_total($this->session->userdata("NPK"));
     $notification_budget = $this->notification_m->get_notification_budget($this->session->userdata("NPK"));
     $notification_budget_total = $this->notification_m->get_notification_budget_total($this->session->userdata("NPK"));
+    $notification_aorta = $this->notification_m->get_notification_aorta($this->session->userdata("NPK"));
+    $notification_aorta_total = $this->notification_m->get_notification_aorta_total($this->session->userdata("NPK"));
     ?>
     <!-- BEGIN HEADER -->
     <header class="header">
@@ -213,14 +215,13 @@
                             </ul>
                         </li-->
 
-
-                    <!-- NOTIFICATION OT-->
+                    <!-- NOTIFICATION AORTA-->
                     <li class="dropdown navbar-menu">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-calendar fa-lg"></i>
+                            <i class="fa fa-clock-o fa-lg"></i>
                             <span class="badge"><?php
-                                                if (!empty($notification_budget_total)) {
-                                                    echo $notification_budget_total[0]->TOTAL;
+                                                if (!empty($notification_aorta_total)) {
+                                                    echo $notification_aorta_total[0]->TOTAL;
                                                 }
                                                 ?></span>
                         </a>
@@ -230,15 +231,15 @@
                             </li>
                             <li>
                                 <p>You have <?php
-                                            if (!empty($notification_budget_total)) {
-                                                echo $notification_budget_total[0]->TOTAL;
+                                            if (!empty($notification_aorta_total)) {
+                                                echo $notification_aorta_total[0]->TOTAL;
                                             }
                                             ?> new notifications</p>
                             </li>
 
                             <?php
-                            if (!empty($notification_budget)) {
-                                foreach ($notification_budget as $notif) :
+                            if (!empty($notification_aorta)) {
+                                foreach ($notification_aorta as $notif) :
                             ?>
                                     <li>
                                         <a href="<?php echo base_url('index.php/basis/home_c/update_notif/' . $notif->INT_ID_NOTIF) ?>" data-placement="left" data-toggle="tooltip" title="<?php echo $notif->CHR_NOTIF_DESC; ?>">
@@ -256,7 +257,7 @@
                             </li>
                         </ul>
                     </li>
-                    <!-- END NOTIFICATION OT -->
+                    <!-- END NOTIFICATION AORTA -->
 
                     <!-- NOTIFICATION BUDGET-->
                     <li class="dropdown navbar-menu">
