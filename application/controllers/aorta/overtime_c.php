@@ -734,16 +734,19 @@ class overtime_c extends CI_Controller
         $data['app'] = $this->role_module_m->get_app();
         $data['module'] = $this->role_module_m->get_module();
         $data['function'] = $this->role_module_m->get_function();
-        $data['sidebar'] = $this->role_module_m->side_bar(359);
+        $data['sidebar'] = $this->role_module_m->side_bar(363);
         $data['news'] = $this->news_m->get_news();
         $data['title'] = 'Approval OT';
         $data['msg'] = $msg;
 
         $user_session = $this->session->all_userdata();
+        // print_r($user_session);
+        // exit();
         $role = $user_session['ROLE'];
         $id_dept = $user_session['DEPT'];
         $id_group = $user_session['GROUPDEPT'];
         $id_division = $user_session['DIVISION'];
+        $id_sect = $user_session['SECTION'];
 
         if ($period == NULL) {
             $period = date('Ym');
@@ -785,8 +788,8 @@ class overtime_c extends CI_Controller
         $data['dept'] = trim($dept);
         $data['section'] = $section;
         $data['period'] = $period;
-
         $data['data'] = $this->overtime_m->get_data_overtime_by_spv(trim($dept), $period, $section);
+        $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_spv(trim($dept), $section);
         $data['content'] = 'aorta/overtime/manage_overtime_by_spv_v';
         $this->load->view($this->layout, $data);
     }
@@ -866,6 +869,39 @@ class overtime_c extends CI_Controller
 
     }
 
+    function approve_plan_overtime_by_spv($nospkl, $period, $dept, $section = null)
+    {   
+        // UPDATE APPROVAL SPV
+        $created_by = $this->session->userdata('USERNAME');
+        $date = date('Ymd');
+        $time = date('His');
+        $psnya = "Approve Dokumen Planning by SPV";
+        $ip = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+
+        $data = array(
+            'CEK_SPV_PLAN' => 1,
+            'OPER_EDIT' => $created_by,
+            'TGL_EDIT' => $date,
+            'JAM_EDIT' => $time
+        );
+
+        $this->overtime_m->update_overtime_by_id($data, $nospkl);
+
+        $data_history = array(
+            'TGLTRANS' => $date,
+            'JAMTRANS' => $time,
+            'OTCPU' => $ip,
+            'TIPETRANS' => 'APPROVE',
+            'NO_SEQUENCE' => $nospkl,
+            'OPERTRANS' => $created_by,
+            'OTVERSION' => 'AIS',
+            'KETERANGAN' => $psnya
+        );
+
+        $this->history_m->save($data_history);
+
+        redirect($this->back_to_approve_spv . $period . '/' . $dept . '/' . $section . '/' . 4);
+    }
 
     function approve_overtime_by_spv($nospkl, $period, $dept, $section = null)
     {
@@ -887,6 +923,7 @@ class overtime_c extends CI_Controller
         $ip = gethostbyaddr($_SERVER['REMOTE_ADDR']);
 
         $data = array(
+            'CEK_SPV_PLAN' => 1,
             'CEK_SPV' => 1,
             'OPER_EDIT' => $created_by,
             'TGL_EDIT' => $date,
@@ -916,9 +953,9 @@ class overtime_c extends CI_Controller
                     'INT_ID_NOTIF' => $seq_id,
                     'CHR_NPK' => $mgr->CHR_NPK,
                     'INT_ID_APP' => '28',
-                    'CHR_NOTIF_TITLE' => $nospkl,
+                    'CHR_NOTIF_TITLE' => 'SPKL '. $dept . ' : ' . $nospkl,
                     'CHR_NOTIF_DESC' => $notif_desc,
-                    'CHR_LINK' => "aorta/overtime_c/prepare_approve_ot_by_mgr/" . str_replace('/','<',$period),
+                    'CHR_LINK' => "aorta/overtime_c/prepare_approve_ot_by_mgr/" . str_replace('/','<',$period) . '/' . str_replace('/','<',$dept),
                     'CHR_CREATED_BY' => $session['USERNAME'],
                     'CHR_CREATED_DATE' => date('Ymd'),
                     'CHR_CREATED_TIME' => date('His')
@@ -927,6 +964,39 @@ class overtime_c extends CI_Controller
         } 
         
         redirect($this->back_to_approve_spv . $period . '/' . $dept . '/' . $section . '/' . 4);
+    }
+
+    function unapprove_plan_overtime_by_spv($nospkl, $period, $dept, $section = null)
+    {
+        $created_by = $this->session->userdata('USERNAME');
+        $date = date('Ymd');
+        $time = date('His');
+        $psnya = "Unapprove Dokumen Planning by SPV";
+        $ip = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+
+        $data = array(
+            'CEK_SPV_PLAN' => 0,
+            'OPER_EDIT' => $created_by,
+            'TGL_EDIT' => $date,
+            'JAM_EDIT' => $time
+        );
+
+        $this->overtime_m->update_overtime_by_id($data, $nospkl);
+
+        $data_history = array(
+            'TGLTRANS' => $date,
+            'JAMTRANS' => $time,
+            'OTCPU' => $ip,
+            'TIPETRANS' => 'UN-APPROVE',
+            'NO_SEQUENCE' => $nospkl,
+            'OPERTRANS' => $created_by,
+            'OTVERSION' => 'AIS',
+            'KETERANGAN' => $psnya
+        );
+
+        $this->history_m->save($data_history);
+
+        redirect($this->back_to_approve_spv . $period . '/' . $dept . '/' . $section . '/' . 5);
     }
 
     function unapprove_overtime_by_spv($nospkl, $period, $dept, $section = null)
@@ -1003,8 +1073,6 @@ class overtime_c extends CI_Controller
         redirect($this->back_to_approve_spv . $period . '/' . $dept . '/' . $section . '/' . 4);
     }
 
-
-
     //MANAGER
     function prepare_approve_ot_by_mgr($period = NULL, $dept = NULL, $section = null, $msg = NULL)
     {
@@ -1075,6 +1143,12 @@ class overtime_c extends CI_Controller
             $data['data'] = $this->overtime_m->get_data_overtime_by_mgr(trim($dept), $period, $section);
         }else {
             $data['data'] = $this->overtime_m->get_data_overtime_by_spv(trim($dept), $period, $section);
+        }
+
+        if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO') {
+            $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_spv_mgr(trim($dept), $section);
+        }else {
+            $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_mgr(trim($dept), $section);
         }
 
         $data['content'] = 'aorta/overtime/manage_overtime_by_mgr_v';
@@ -1164,6 +1238,40 @@ class overtime_c extends CI_Controller
     //     redirect($this->back_to_approve_mgr . $period . '/' . $dept . '/' . $section . '/' . 5);
     // }
 
+    function approve_plan_overtime_by_mgr($nospkl, $period, $dept, $section = null)
+    {
+        // UPDATE APPROVAL MGR
+        $created_by = $this->session->userdata('USERNAME');
+        $date = date('Ymd');
+        $time = date('His');
+        $psnya = "Approve Dokumen Planning by Kadept";
+        $ip = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+
+        $data = array(
+            'CEK_KADEP_PLAN'=> 1,
+            'OPER_EDIT' => $created_by,
+            'TGL_EDIT' => $date,
+            'JAM_EDIT' => $time
+        );
+
+        $this->overtime_m->update_overtime_by_id($data, $nospkl);
+
+        $data_history = array(
+            'TGLTRANS' => $date,
+            'JAMTRANS' => $time,
+            'OTCPU' => $ip,
+            'TIPETRANS' => 'APPROVE',
+            'NO_SEQUENCE' => $nospkl,
+            'OPERTRANS' => $created_by,
+            'OTVERSION' => 'AIS',
+            'KETERANGAN' => $psnya
+        );
+
+        $this->history_m->save($data_history);
+
+        redirect($this->back_to_approve_mgr . $period . '/' . $dept . '/' . $section . '/' . 4);
+    }
+    
     function approve_overtime_by_mgr($nospkl, $period, $dept, $section = null)
     {
         //GET NPK TO SEND NOTIFICATION
@@ -1184,6 +1292,7 @@ class overtime_c extends CI_Controller
         $ip = gethostbyaddr($_SERVER['REMOTE_ADDR']);
 
         $data = array(
+            'CEK_KADEP_PLAN'=> 1,
             'CEK_KADEP' => 1,
             'OPER_EDIT' => $created_by,
             'TGL_EDIT' => $date,
@@ -1213,9 +1322,9 @@ class overtime_c extends CI_Controller
                     'INT_ID_NOTIF' => $seq_id,
                     'CHR_NPK' => $gm->CHR_NPK,
                     'INT_ID_APP' => '28',
-                    'CHR_NOTIF_TITLE' => $nospkl,
+                    'CHR_NOTIF_TITLE' => 'SPKL '. $dept . ' : ' . $nospkl,
                     'CHR_NOTIF_DESC' => $notif_desc,
-                    'CHR_LINK' => "aorta/overtime_c/prepare_approve_ot_by_gm/" . str_replace('/','<',$period),
+                    'CHR_LINK' => "aorta/overtime_c/prepare_approve_ot_by_gm/" . str_replace('/','<',$period) . '/' . str_replace('/','<',$dept),
                     'CHR_CREATED_BY' => $session['USERNAME'],
                     'CHR_CREATED_DATE' => date('Ymd'),
                     'CHR_CREATED_TIME' => date('His')
@@ -1224,6 +1333,39 @@ class overtime_c extends CI_Controller
         } 
 
         redirect($this->back_to_approve_mgr . $period . '/' . $dept . '/' . $section . '/' . 4);
+    }
+
+    function unapprove_plan_overtime_by_mgr($nospkl, $period, $dept, $section = null)
+    {
+        $created_by = $this->session->userdata('USERNAME');
+        $date = date('Ymd');
+        $time = date('His');
+        $psnya = "Unapprove Dokumen Planning by Kadept";
+        $ip = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+
+        $data = array(
+            'CEK_KADEP_PLAN' => 0,
+            'OPER_EDIT' => $created_by,
+            'TGL_EDIT' => $date,
+            'JAM_EDIT' => $time
+        );
+
+        $this->overtime_m->update_overtime_by_id($data, $nospkl);
+
+        $data_history = array(
+            'TGLTRANS' => $date,
+            'JAMTRANS' => $time,
+            'OTCPU' => $ip,
+            'TIPETRANS' => 'UN-APPROVE',
+            'NO_SEQUENCE' => $nospkl,
+            'OPERTRANS' => $created_by,
+            'OTVERSION' => 'AIS',
+            'KETERANGAN' => $psnya
+        );
+
+        $this->history_m->save($data_history);
+
+        redirect($this->back_to_approve_mgr . $period . '/' . $dept . '/' . $section . '/' . 5);
     }
 
     function unapprove_overtime_by_mgr($nospkl, $period, $dept, $section = null)
@@ -1370,6 +1512,7 @@ class overtime_c extends CI_Controller
         $data['quota_usage_dept'] = $this->overtime_m->get_detail_quota_group_per_dept_by_periode_gm($period, $data['group']);
 
         $data['data'] = $this->overtime_m->get_data_overtime_by_gm($data['dept'], $period, $data['section']);
+        $data['data_approve'] = $this->overtime_m->get_data_approval_overtime_by_gm($data['dept'], $data['section']);
         $data['content'] = 'aorta/overtime/manage_overtime_by_gm_v';
         $this->load->view($this->layout, $data);
     }
@@ -1453,6 +1596,37 @@ class overtime_c extends CI_Controller
     //         redirect($this->back_to_approve_gm . $period . '/' . $dept . '/' . $section . '/' . 5);
     //     }
 
+    function approve_plan_overtime_by_gm($nospkl, $period, $dept, $section = null)
+    {
+        $created_by = $this->session->userdata('USERNAME');
+        $date = date('Ymd');
+        $time = date('Hi');
+        $psnya = "Approve Dokumen Planning by GM";
+        $ip = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+
+        $data = array(
+            'CEK_GM_PLAN' => 1,
+            'APP_PLAN' => $date . $time
+        );
+
+        $this->overtime_m->update_overtime_by_id($data, $nospkl);
+
+        $data_history = array(
+            'TGLTRANS' => $date,
+            'JAMTRANS' => $time,
+            'OTCPU' => $ip,
+            'TIPETRANS' => 'APPROVE',
+            'NO_SEQUENCE' => $nospkl,
+            'OPERTRANS' => $created_by,
+            'OTVERSION' => 'AIS',
+            'KETERANGAN' => $psnya
+        );
+
+        $this->history_m->save($data_history);
+
+        redirect($this->back_to_approve_gm . $period . '/' . $dept . '/' . $section . '/' . 4);
+    }
+
     function approve_overtime_by_gm($nospkl, $period, $dept, $section = null)
     {
         $created_by = $this->session->userdata('USERNAME');
@@ -1462,6 +1636,7 @@ class overtime_c extends CI_Controller
         $ip = gethostbyaddr($_SERVER['REMOTE_ADDR']);
 
         $data = array(
+            'CEK_GM_PLAN' => 1,
             'CEK_GM' => 1,
             'APP_PLAN' => $date . $time
         );
@@ -1482,6 +1657,37 @@ class overtime_c extends CI_Controller
         $this->history_m->save($data_history);
 
         redirect($this->back_to_approve_gm . $period . '/' . $dept . '/' . $section . '/' . 4);
+    }
+
+    function unapprove_plan_overtime_by_gm($nospkl, $period, $dept, $section = null)
+    {
+        $created_by = $this->session->userdata('USERNAME');
+        $date = date('Ymd');
+        $time = date('His');
+        $psnya = "Unapprove Dokumen Planning by GM";
+        $ip = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+
+        $data = array(
+            'CEK_GM_PLAN' => 0,
+            'APP_PLAN' => $date . $time
+        );
+
+        $this->overtime_m->update_overtime_by_id($data, $nospkl);
+
+        $data_history = array(
+            'TGLTRANS' => $date,
+            'JAMTRANS' => $time,
+            'OTCPU' => $ip,
+            'TIPETRANS' => 'UN-APPROVE',
+            'NO_SEQUENCE' => $nospkl,
+            'OPERTRANS' => $created_by,
+            'OTVERSION' => 'AIS',
+            'KETERANGAN' => $psnya
+        );
+
+        $this->history_m->save($data_history);
+
+        redirect($this->back_to_approve_gm . $period . '/' . $dept . '/' . $section . '/' . 5);
     }
 
     function unapprove_overtime_by_gm($nospkl, $period, $dept, $section = null)
@@ -1626,7 +1832,18 @@ class overtime_c extends CI_Controller
         $data['detail_quota_group'] = $this->overtime_m->get_detail_quota_group_by_periode($period, $data['group']);
         $data['quota_usage_dept'] = $this->overtime_m->get_detail_quota_group_per_dept_by_periode_gm($period, $data['group']);
 
-        $data['data'] = $this->overtime_m->get_data_overtime_by_spv($dept, $period, $section);
+        if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO') {
+            $data['data'] = $this->overtime_m->get_data_overtime_by_mgr(trim($dept), $period, $section);
+        }else {
+            $data['data'] = $this->overtime_m->get_data_overtime_by_spv(trim($dept), $period, $section);
+        }
+
+        if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO') {
+            $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_spv_mgr(trim($dept), $section);
+        }else {
+            $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_mgr(trim($dept), $section);
+        }
+
         $data['content'] = 'aorta/overtime/manage_overtime_by_mgr_and_gm_v';
         $this->load->view($this->layout, $data);
     }
@@ -1759,6 +1976,40 @@ class overtime_c extends CI_Controller
 
     //     redirect($this->back_to_approve_mgr_and_gm . $period . '/' . $dept . '/' . $section . '/' . 5);
     // }
+    function approve_plan_overtime_by_mgr_and_gm($nospkl, $period, $dept, $section = null)
+    {
+        $created_by = $this->session->userdata('USERNAME');
+        $date = date('Ymd');
+        $time = date('Hi');
+        $psnya = "Approve Dokumen Planning by Kadept + GM";
+        $ip = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+
+        $data = array(
+            'CEK_KADEP_PLAN' => 1,
+            'OPER_EDIT' => $created_by,
+            'TGL_EDIT' => $date,
+            'JAM_EDIT' => $time,
+            'CEK_GM_PLAN' => 1,
+            'APP_PLAN' => $date . $time
+        );
+
+        $this->overtime_m->update_overtime_by_id($data, $nospkl);
+
+        $data_history = array(
+            'TGLTRANS' => $date,
+            'JAMTRANS' => $time,
+            'OTCPU' => $ip,
+            'TIPETRANS' => 'APPROVE',
+            'NO_SEQUENCE' => $nospkl,
+            'OPERTRANS' => $created_by,
+            'OTVERSION' => 'AIS',
+            'KETERANGAN' => $psnya
+        );
+
+        $this->history_m->save($data_history);
+
+        redirect($this->back_to_approve_mgr_and_gm . $period . '/' . $dept . '/' . $section . '/' . 4);
+    }
 
     function approve_overtime_by_mgr_and_gm($nospkl, $period, $dept, $section = null)
     {
@@ -1769,10 +2020,12 @@ class overtime_c extends CI_Controller
         $ip = gethostbyaddr($_SERVER['REMOTE_ADDR']);
 
         $data = array(
+            'CEK_KADEP_PLAN' => 1,
             'CEK_KADEP' => 1,
             'OPER_EDIT' => $created_by,
             'TGL_EDIT' => $date,
             'JAM_EDIT' => $time,
+            'CEK_GM_PLAN' => 1,
             'CEK_GM' => 1,
             'APP_PLAN' => $date . $time
         );
@@ -1793,6 +2046,41 @@ class overtime_c extends CI_Controller
         $this->history_m->save($data_history);
 
         redirect($this->back_to_approve_mgr_and_gm . $period . '/' . $dept . '/' . $section . '/' . 4);
+    }
+
+    function unapprove_plan_overtime_by_mgr_and_gm($nospkl, $period, $dept, $section = null)
+    {
+        $created_by = $this->session->userdata('USERNAME');
+        $date = date('Ymd');
+        $time = date('His');
+        $psnya = "Unapprove Dokumen Planning by Kadept + GM";
+        $ip = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+
+        $data = array(
+            'CEK_KADEP_PLAN' => 0,
+            'OPER_EDIT' => '',
+            'TGL_EDIT' => '',
+            'JAM_EDIT' => '',
+            'CEK_GM_PLAN' => 0,
+            'APP_PLAN' => ''
+        );
+
+        $this->overtime_m->update_overtime_by_id($data, $nospkl);
+
+        $data_history = array(
+            'TGLTRANS' => $date,
+            'JAMTRANS' => $time,
+            'OTCPU' => $ip,
+            'TIPETRANS' => 'UN-APPROVE',
+            'NO_SEQUENCE' => $nospkl,
+            'OPERTRANS' => $created_by,
+            'OTVERSION' => 'AIS',
+            'KETERANGAN' => $psnya
+        );
+
+        $this->history_m->save($data_history);
+
+        redirect($this->back_to_approve_mgr_and_gm . $period . '/' . $dept . '/' . $section . '/' . 5);
     }
 
     function unapprove_overtime_by_mgr_and_gm($nospkl, $period, $dept, $section = null)
@@ -2114,7 +2402,6 @@ class overtime_c extends CI_Controller
         $data['content'] = $contain;
         $this->load->view("/template/head_blank", $data);
     }
-
 
     function print_overtime_excel($no_spkl)
     {
