@@ -136,21 +136,34 @@
                                         else if ($isi->CEK_SPV == 1 && $isi->CEK_KADEP == 0 && $isi->CEK_GM == 0) {
                                             $color = 'background:#F5811E;color:#fff;';
                                         }
-                                        else if ($isi->CEK_SPV == 1 && $isi->CEK_KADEP == 1 && $isi->CEK_GM == 0) {
+                                        else if ($isi->CEK_KADEP == 1 && $isi->CEK_GM == 0) {
                                             $color = 'background:#FFCA01;color:#fff;';
                                         }
-                                        else if ($isi->CEK_SPV == 1 && $isi->CEK_KADEP == 1 && $isi->CEK_GM == 1) {
+                                        else if ($isi->CEK_KADEP == 1 && $isi->CEK_GM == 1) {
                                             $color = 'background:#7DD488;color:#fff;';
                                         }
-                                        else if ($isi->CEK_KADEP == 0 && $isi->CEK_KADEP == '-' && $isi->CEK_GM == '-') {
+                                        if ($isi->CEK_GM == 1 && $isi->FLG_DOWNLOAD == 1) {
+                                            $color = 'background:#71AEF5;color:#fff;';
+                                        }
+                                        else if ($isi->CEK_KADEP == '-' && $isi->CEK_GM == '-') {
                                             $color = '';
                                         }
 
                                         echo "<td style='$color'><strong>$isi->NO_SEQUENCE</strong></td>";
                                         if(strlen($isi->ALASAN) > 80){
-                                            echo "<td>". substr($isi->ALASAN,0,80) . " ...</td>";
+                                            // echo "<td>". substr($isi->ALASAN,0,80) . " ...</td>";
+                                            if($isi->REAL_MULAI_OV_TIME == 'NULL' || $isi->REAL_SELESAI_OV_TIME == 'NULL'){
+                                                echo "<td style='color:#E63F53'>" . substr($isi->ALASAN, 0, 80) . " ...</td>";
+                                            } else{
+                                                echo "<td>" . substr($isi->ALASAN, 0, 80) . " ...</td>";
+                                            }
                                         } else {
-                                            echo "<td>". $isi->ALASAN . "</td>";
+                                            // echo "<td>". $isi->ALASAN . "</td>";
+                                            if($isi->REAL_MULAI_OV_TIME == 'NULL' || $isi->REAL_SELESAI_OV_TIME == 'NULL'){
+                                                echo "<td style='color:#E63F53'>" . $isi->ALASAN . "</td>";
+                                            } else{
+                                                echo "<td>" . $isi->ALASAN . "</td>";
+                                            }
                                         }
                                         echo "<td align='center'><strong>$isi->TOT_MP</strong></td>";
                                         echo "<td align='center'><strong>" . number_format($isi->RENC_DURASI_OV_TIME,2,',','.') . "</strong></td>";
@@ -204,6 +217,9 @@
                                     </td>
                                     <td width="10%">
                                         <button disabled style='border:0;background:#7DD488;width:25px;height:25px;color:white;' ></button> : Approved by GM
+                                    </td>
+                                    <td width="10%">
+                                        <button disabled style='border:0;background:#71AEF5;width:25px;height:25px;color:white;' ></button> : Process by HRD
                                     </td>
                                 </tr>
                             </table>
