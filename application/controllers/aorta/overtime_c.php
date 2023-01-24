@@ -74,43 +74,9 @@ class overtime_c extends CI_Controller
         }
 
         $data['all_section'] = $this->overtime_m->get_all_section_drop($dept);
-        $data['top_section'] = $this->overtime_m->get_top_section_overtime($dept);
 
-        if ($section == NULL) {
-            $x = 0;
-            foreach ($data['top_section'] as $value) {
-                if (trim($value->KODE) == trim($section)) {
-                    $x = 1;
-                }
-            }
-        }else if ($section == 'ALL') {
-            $x = 0;
-            foreach ($data['all_section'] as $value) {
-                if (trim($value->KODE) == trim($section)) {
-                    $x = 1;
-                }
-            }
-            if ($x == 0) {
-                foreach ($data['top_section'] as $value) {
-                    if (trim($value->KODE) == trim($section)) {
-                        $x = 1;
-                    }
-            }
-        }
-        }else {
-            $x = 0;
-            foreach ($data['all_section'] as $value) {
-                if (trim($value->KODE) == trim($section)) {
-                    $x = 1;
-                }
-            }
-            if ($x == 0) {
-                foreach ($data['top_section'] as $value) {
-                    if (trim($value->KODE) == trim($section)) {
-                        $x = 1;
-                    }
-                }
-            }
+        if($section == null){
+            $section = $this->overtime_m->get_top_section_overtime($dept)->row()->KODE;
         }
 
         $data['npk'] = $npk;
@@ -136,34 +102,17 @@ class overtime_c extends CI_Controller
 
         $data['dept'] = $dept;
         $data['all_dept'] = $this->overtime_m->get_dept_overtime();
-        if ($dept == null || $dept == '') {
-            $dept = $this->overtime_m->get_top_dept_overtime()->row()->KODE;
-        }
-        
-        $data['section'] = $section;
         $data['all_section'] = $this->overtime_m->get_section_overtime($dept);
-        if ($section == NULL) {
-            $section = $this->overtime_m->get_top_section_overtime($dept)->row()->KODE;
-        } else {
-            $x = 0;
-            foreach ($data['all_section'] as $value) {
-                if (trim($value->KODE) == trim($section)) {
-                    $x = 1;
-                }
-            }
-            if ($x == 0) {
-                $section = $this->overtime_m->get_top_section_overtime($dept)->row()->KODE;
-            }
-        }
-        
+        $data['section'] = $section;
+
         // $sub_section = $this->overtime_m->get_top_sub_section_overtime($section);
-        // $data['sub_section'] = $sub_section; //->row()->KODE;
+        // $data['sub_section'] = $sub_section->row()->KODE;
         // $data['all_sub_section'] = $this->overtime_m->get_sub_section_overtime($section);
 
         $data['npk_pic'] = $this->overtime_m->get_top_pic_overtime($section);
         $data['all_pic'] = $this->overtime_m->get_pic_overtime($section);
 
-        $data['all_employee'] = $this->overtime_m->get_employee_by_section($dept, $section);
+        $data['all_employee'] = $this->overtime_m->get_employee_by_dept($dept);
         $data['all_category'] = $this->overtime_m->get_category();
 
         $data['cat_ot'] = $this->overtime_m->get_top_category();
@@ -270,20 +219,13 @@ class overtime_c extends CI_Controller
         if ($tempOvertime) {
             foreach ($tempOvertime as $isi) {
                 $data .= "<tr class='gradeX'>";
-                $data .= "<td>$i</td>";
-                $data .= "<td style='vertical-align: middle;text-align:center'><strong>$isi->NPK</strong></td>'";
-                $data .= "<td style='vertical-align: middle;text-align:left'><strong>$isi->NAMA</strong></td>'";
-
-                $data .= "<td style='vertical-align: middle;text-align:center'>" . substr($isi->RENC_MULAI_OV_TIME, 0, 2) . ":" . substr($isi->RENC_MULAI_OV_TIME, 2, 2) . "</td>";
-                $data .= "<td style='vertical-align: middle;text-align:center'>" . substr($isi->RENC_SELESAI_OV_TIME, 0, 2) . ":" . substr($isi->RENC_SELESAI_OV_TIME, 2, 2) . "</td>";
-                $data .= "<td style='vertical-align: middle;text-align:center'><strong>" . number_format((float) $isi->RENC_DURASI_OV_TIME / 60, 2, ',', '.') . "</strong></td>";
-                $data .= "<td style='vertical-align: middle;text-align:center'>" . substr($isi->REAL_MULAI_OV_TIME, 0, 2) . ":" . substr($isi->REAL_MULAI_OV_TIME, 2, 2) . "</td>";
-                $data .= "<td style='vertical-align: middle;text-align:center'>" . substr($isi->REAL_SELESAI_OV_TIME, 0, 2) . ":" . substr($isi->REAL_SELESAI_OV_TIME, 2, 2) . "</td>";
-                $data .= "<td style='vertical-align: middle;text-align:center'><strong>" . number_format((float) $isi->REAL_DURASI_OV_TIME / 60, 2, ',', '.') . "</strong></td>";
-
-                $data .= "<td style='vertical-align: middle;text-align:center'>" . 0 . "</td>";
-                $data .= "<td style='vertical-align: middle;text-align:center'><strong>" . 0 . "</strong></td>";
-                $data .= "<td style='vertical-align: middle;text-align:center'>";
+                $data .= "<td style='text-align:center'>$i</td>";
+                $data .= "<td style='text-align:center'><strong>$isi->NPK</strong></td>'";
+                $data .= "<td style='text-align:left'>$isi->NAMA</td>'";
+                $data .= "<td style='text-align:center'>" . substr($isi->RENC_MULAI_OV_TIME, 0, 2) . ":" . substr($isi->RENC_MULAI_OV_TIME, 2, 2) . "</td>";
+                $data .= "<td style='text-align:center'>" . substr($isi->RENC_SELESAI_OV_TIME, 0, 2) . ":" . substr($isi->RENC_SELESAI_OV_TIME, 2, 2) . "</td>";
+                $data .= "<td style='text-align:center'><strong>" . number_format((float) $isi->RENC_DURASI_OV_TIME / 60, 2, ',', '.') . "</strong></td>";
+                $data .= "<td style='text-align:center'>";
                 $data .= "<a onclick=removeNpk('$no_sequence','" . trim($isi->NPK) . "'); class='label label-danger' data-placement='right' data-toggle='tooltip' title='Remove' ><span class='fa fa-times'></span></a>";
                 $data .= "</td>";
                 $data .= "</tr>";
@@ -453,10 +395,9 @@ class overtime_c extends CI_Controller
             $pic_deptnickname = trim($overtime_head->NAMA_PIC);
         }
 
-        $flg_approved_spv = $overtime_head->CEK_SPV == 0 ? '' : 'APPROVED';
         $flg_approved_mgr = $overtime_head->CEK_KADEP == 0 ? '' : 'APPROVED';
         $flg_approved_gm = $overtime_head->CEK_GM == 0 ? '' : 'APPROVED';
-        $flg_approved_dir = $overtime_head->CEK_DIR == 0 ? '' : 'APPROVED';
+        $flg_approved_spv = $overtime_head->CEK_DIR == 0 ? '' : 'APPROVED';
 
         $data_header = array(
             'no_spkl' => $no_spkl,
@@ -468,9 +409,9 @@ class overtime_c extends CI_Controller
             'pic' => $pic_nickname,
             'penganggung_jawab' => $pic_deptnickname,
             'nama' => $overtime_head->NAMA,
-            'flg_approved_spv' => $flg_approved_spv, 
             'flg_approved_mgr' => $flg_approved_mgr,
-            'flg_approved_gm' => $flg_approved_gm
+            'flg_approved_gm' => $flg_approved_gm,
+            'flg_approved_spv' => $flg_approved_spv, 
         );
 
         $pdf->setDataHeader($data_header);
@@ -788,6 +729,7 @@ class overtime_c extends CI_Controller
         $data['dept'] = trim($dept);
         $data['section'] = $section;
         $data['period'] = $period;
+
         $data['data'] = $this->overtime_m->get_data_overtime_by_spv(trim($dept), $period, $section);
         $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_spv(trim($dept), $section);
         $data['content'] = 'aorta/overtime/manage_overtime_by_spv_v';
@@ -796,15 +738,6 @@ class overtime_c extends CI_Controller
 
     function approve_form_overtime_by_spv()
     {
-        //GET NPK TO SEND NOTIFICATION
-        $session = $this->session->all_userdata();
-        $get_spkl = $this->overtime_m->get_notif_overtime_by_no_spkl($nospkl);
-        $dept_ais = $get_spkl->KD_DEPT;
-        $notif_desc = $get_spkl->ALASAN;
-        $id_dept = $this->dept_m->get_id_dept_by_dept_ais($dept_ais);
-        $npk_mgr = $this->user_m->get_npk_dept($id_dept);
-        
-        //UPDATE APPROVAL SPV
         $nospkl = $this->input->post("NO_SEQUENCE");
         $section = $this->input->post("CHR_SECTION");
         $dept = $this->input->post("CHR_DEPT");
@@ -847,26 +780,7 @@ class overtime_c extends CI_Controller
 
         $this->history_m->save($data_history);
 
-        //SEND NOTIFICATION
-        foreach($npk_mgr as $mgr){
-            $seq_id = $this->notification_m->generate_id();
-
-            $data_notif = array(
-                    'INT_ID_NOTIF' => $seq_id,
-                    'CHR_NPK' => $mgr->CHR_NPK,
-                    'INT_ID_APP' => '28',
-                    'CHR_NOTIF_TITLE' => $nospkl,
-                    'CHR_NOTIF_DESC' => $notif_desc,
-                    'CHR_LINK' => "aorta/overtime_c/prepare_approve_ot_by_mgr/" . str_replace('/','<',$period),
-                    'CHR_CREATED_BY' => $session['USERNAME'],
-                    'CHR_CREATED_DATE' => date('Ymd'),
-                    'CHR_CREATED_TIME' => date('His')
-                );
-            $this->notification_m->insert_notification($data_notif);
-        } 
-
         redirect($this->back_to_approve_spv . $period . '/' . $dept . '/' . $section . '/' . $msg_no);
-
     }
 
     function approve_plan_overtime_by_spv($nospkl, $period, $dept, $section = null)
@@ -912,9 +826,7 @@ class overtime_c extends CI_Controller
         $notif_desc = $get_spkl->ALASAN;
         $id_dept = $this->dept_m->get_id_dept_by_dept($dept);
         $npk_mgr = $this->user_m->get_npk_dept($id_dept);
-        // print_r($npk_mgr);
-        // exit();
-        
+
         // UPDATE APPROVAL SPV
         $created_by = $this->session->userdata('USERNAME');
         $date = date('Ymd');
@@ -962,7 +874,7 @@ class overtime_c extends CI_Controller
                 );
             $this->notification_m->insert_notification($data_notif);
         } 
-        
+
         redirect($this->back_to_approve_spv . $period . '/' . $dept . '/' . $section . '/' . 4);
     }
 
@@ -1139,18 +1051,27 @@ class overtime_c extends CI_Controller
         $data['section'] = $section;
         $data['period'] = $period;
 
-        if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO') {
+        if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA' || $dept == 'PPC') {
             $data['data'] = $this->overtime_m->get_data_overtime_by_mgr(trim($dept), $period, $section);
         }else {
             $data['data'] = $this->overtime_m->get_data_overtime_by_spv(trim($dept), $period, $section);
         }
 
-        if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO') {
+        if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA' || $dept == 'PPC') {
             $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_spv_mgr(trim($dept), $section);
         }else {
             $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_mgr(trim($dept), $section);
         }
 
+        $data['first_sunday'] = $this->firstSunday(substr($period, 0, 4) . '-' . substr($period, 4, 2));
+        $data['first_saturday'] = $this->firstSaturday(substr($period, 0, 4) . '-' . substr($period, 4, 2));
+
+        $data['plan'] = $this->quota_employee_m->get_plan_quota_by_dept_and_period($period, $dept, $section);
+        $data['actl'] = $this->quota_employee_m->get_actl_quota_by_dept_and_period($period, $dept, $section);
+
+        $data['plan_cum'] = $this->quota_employee_m->get_plan_quota_accumulation_by_dept_and_period($period, $dept, $section);
+        $data['actl_cum'] = $this->quota_employee_m->get_actl_quota_accumulation_by_dept_and_period($period, $dept, $section);
+        
         $data['content'] = 'aorta/overtime/manage_overtime_by_mgr_v';
         $this->load->view($this->layout, $data);
     }
@@ -1178,6 +1099,7 @@ class overtime_c extends CI_Controller
         }
 
         $data = array(
+            'CEK_SPV' => $type_action,
             'CEK_KADEP' => $type_action,
             'OPER_EDIT' => $created_by,
             'TGL_EDIT' => $date,
@@ -1215,6 +1137,7 @@ class overtime_c extends CI_Controller
 
     //     $data = array(
     //         'CEK_KADEP' => 0,
+    //         'CEK_SPV' => 0,
     //         'OPER_EDIT' => $created_by,
     //         'TGL_EDIT' => $date,
     //         'JAM_EDIT' => $time
@@ -1271,7 +1194,7 @@ class overtime_c extends CI_Controller
 
         redirect($this->back_to_approve_mgr . $period . '/' . $dept . '/' . $section . '/' . 4);
     }
-    
+
     function approve_overtime_by_mgr($nospkl, $period, $dept, $section = null)
     {
         //GET NPK TO SEND NOTIFICATION
@@ -1281,9 +1204,7 @@ class overtime_c extends CI_Controller
         $notif_desc = $get_spkl->ALASAN;
         $id_group = $this->dept_m->get_id_groupdept_by_dept($dept_ais);
         $npk_gm = $this->user_m->get_npk_groupdept($id_group);
-        // print_r($dept_ais);
-        // exit();
-        
+
         // UPDATE APPROVAL MGR
         $created_by = $this->session->userdata('USERNAME');
         $date = date('Ymd');
@@ -1294,6 +1215,8 @@ class overtime_c extends CI_Controller
         $data = array(
             'CEK_KADEP_PLAN'=> 1,
             'CEK_KADEP' => 1,
+            'CEK_SPV_PLAN'=> 1,
+            'CEK_SPV' => 1,
             'OPER_EDIT' => $created_by,
             'TGL_EDIT' => $date,
             'JAM_EDIT' => $time
@@ -1378,6 +1301,7 @@ class overtime_c extends CI_Controller
 
         $data = array(
             'CEK_KADEP' => 0,
+            'CEK_SPV' => 0,
             'OPER_EDIT' => $created_by,
             'TGL_EDIT' => $date,
             'JAM_EDIT' => $time
@@ -1420,6 +1344,7 @@ class overtime_c extends CI_Controller
                 'TGL_EDIT' => $date,
                 'JAM_EDIT' => $time,
                 'CEK_KADEP' => 1,
+                'CEK_SPV' => 1,
                 'APP_PLAN' => $date . $time
             );
 
@@ -1511,10 +1436,39 @@ class overtime_c extends CI_Controller
         $data['detail_quota_group'] = $this->overtime_m->get_detail_quota_group_by_periode($period, $data['group']);
         $data['quota_usage_dept'] = $this->overtime_m->get_detail_quota_group_per_dept_by_periode_gm($period, $data['group']);
 
+        $data['first_sunday'] = $this->firstSunday(substr($period, 0, 4) . '-' . substr($period, 4, 2));
+        $data['first_saturday'] = $this->firstSaturday(substr($period, 0, 4) . '-' . substr($period, 4, 2));
+
+        $data['plan'] = $this->quota_employee_m->get_plan_quota_by_dept_and_period($period, $dept, $section);
+        $data['actl'] = $this->quota_employee_m->get_actl_quota_by_dept_and_period($period, $dept, $section);
+
+        $data['plan_cum'] = $this->quota_employee_m->get_plan_quota_accumulation_by_dept_and_period($period, $dept, $section);
+        $data['actl_cum'] = $this->quota_employee_m->get_actl_quota_accumulation_by_dept_and_period($period, $dept, $section);
+
         $data['data'] = $this->overtime_m->get_data_overtime_by_gm($data['dept'], $period, $data['section']);
         $data['data_approve'] = $this->overtime_m->get_data_approval_overtime_by_gm($data['dept'], $data['section']);
         $data['content'] = 'aorta/overtime/manage_overtime_by_gm_v';
         $this->load->view($this->layout, $data);
+    }
+
+    function firstSunday($date)
+    {
+        for ($day = 1; $day <= 7; $day++) {
+            $dd = strftime("%A", strtotime($date . '-' . $day));
+            if ($dd == 'Sunday') {
+                return strftime("%Y-%m-%d", strtotime($date . '-' . $day));
+            }
+        }
+    }
+
+    function firstSaturday($date)
+    {
+        for ($day = 1; $day <= 7; $day++) {
+            $dd = strftime("%A", strtotime($date . '-' . $day));
+            if ($dd == 'Saturday') {
+                return strftime("%Y-%m-%d", strtotime($date . '-' . $day));
+            }
+        }
     }
 
     function approve_form_overtime_by_gm()
@@ -1699,6 +1653,8 @@ class overtime_c extends CI_Controller
         $ip = gethostbyaddr($_SERVER['REMOTE_ADDR']);
 
         $data = array(
+            'CEK_SPV' => 0,
+            'CEK_KADEP' => 0,
             'CEK_GM' => 0,
             'APP_PLAN' => $date . $time
         );
@@ -1832,18 +1788,18 @@ class overtime_c extends CI_Controller
         $data['detail_quota_group'] = $this->overtime_m->get_detail_quota_group_by_periode($period, $data['group']);
         $data['quota_usage_dept'] = $this->overtime_m->get_detail_quota_group_per_dept_by_periode_gm($period, $data['group']);
 
-        if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO') {
+        if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA' || $dept == 'PPC') {
             $data['data'] = $this->overtime_m->get_data_overtime_by_mgr(trim($dept), $period, $section);
         }else {
             $data['data'] = $this->overtime_m->get_data_overtime_by_spv(trim($dept), $period, $section);
         }
 
-        if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO') {
+        if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA' || $dept == 'PPC') {
             $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_spv_mgr(trim($dept), $section);
         }else {
             $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_mgr(trim($dept), $section);
         }
-
+        
         $data['content'] = 'aorta/overtime/manage_overtime_by_mgr_and_gm_v';
         $this->load->view($this->layout, $data);
     }
@@ -1976,6 +1932,7 @@ class overtime_c extends CI_Controller
 
     //     redirect($this->back_to_approve_mgr_and_gm . $period . '/' . $dept . '/' . $section . '/' . 5);
     // }
+
     function approve_plan_overtime_by_mgr_and_gm($nospkl, $period, $dept, $section = null)
     {
         $created_by = $this->session->userdata('USERNAME');
@@ -2402,6 +2359,7 @@ class overtime_c extends CI_Controller
         $data['content'] = $contain;
         $this->load->view("/template/head_blank", $data);
     }
+
 
     function print_overtime_excel($no_spkl)
     {
