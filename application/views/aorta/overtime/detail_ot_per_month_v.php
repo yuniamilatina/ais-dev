@@ -464,32 +464,32 @@
                         <td><strong>ACT/BGT %</strong></td>
                         <td>:</td>
 
-                        <td><?php echo number_format(($detail_quota_used->BLN04/$detail_quota_budget->DATA_04)*100, 0, ',', '.'); ?></td>
-                        <td><?php echo number_format(($detail_quota_used->BLN05/$detail_quota_budget->DATA_05)*100, 0, ',', '.'); ?></td>
+                        <td><?php echo number_format((($detail_quota_used->BLN04 > 0 ? $detail_quota_used->BLN04:1)/($detail_quota_budget->DATA_04 > 0? $detail_quota_budget->DATA_04:1))*100, 0, ',', '.'); ?></td>
+                        <td><?php echo number_format((($detail_quota_used->BLN05 > 0 ? $detail_quota_used->BLN05:1)/($detail_quota_budget->DATA_05 > 0? $detail_quota_budget->DATA_05:1))*100, 0, ',', '.'); ?></td>
                         <td><?php echo number_format(($detail_quota_used->BLN06/$detail_quota_budget->DATA_06)*100, 0, ',', '.'); ?></td>
                         <td><strong><?php echo number_format(($tot_Q1_used/$tot_Q1_budget)*100, 0, ',', '.'); ?></strong></td>
                         <td><strong><?php echo number_format(($avg_Q1_used/$avg_Q1_budget)*100, 0, ',', '.'); ?></strong></td>
-                        <td><?php echo number_format(($detail_quota_used->BLN07/$detail_quota_budget->DATA_07)*100, 0, ',', '.'); ?></td>
-                        <td><?php echo number_format(($detail_quota_used->BLN08/$detail_quota_budget->DATA_08)*100, 0, ',', '.'); ?></td>
-                        <td><?php echo number_format(($detail_quota_used->BLN09/$detail_quota_budget->DATA_09)*100, 0, ',', '.'); ?></td>
-                        <td><strong><?php echo number_format(($tot_Q2_used/$tot_Q2_budget)*100, 0, ',', '.'); ?></strong></td>
-                        <td><strong><?php echo number_format(($avg_Q2_used/$avg_Q2_budget)*100, 0, ',', '.');; ?></strong></td>
+                        <td><?php echo number_format((($detail_quota_used->BLN07 > 0 ? $detail_quota_used->BLN07:1)/($detail_quota_budget->DATA_07 > 0? $detail_quota_budget->DATA_07:1))*100, 0, ',', '.'); ?></td>
+                        <td><?php echo number_format((($detail_quota_used->BLN08 > 0 ? $detail_quota_used->BLN08:1)/($detail_quota_budget->DATA_08 > 0? $detail_quota_budget->DATA_08:1))*100, 0, ',', '.'); ?></td>
+                        <td><?php echo number_format((($detail_quota_used->BLN09 > 0 ? $detail_quota_used->BLN09:1)/($detail_quota_budget->DATA_09 > 0? $detail_quota_budget->DATA_09:1))*100, 0, ',', '.'); ?></td>
+                        <td><strong><?php echo number_format((($tot_Q2_used > 0 ?$tot_Q2_used:1)/($tot_Q2_budget> 0 ?$tot_Q2_budget:1))*100, 0, ',', '.'); ?></strong></td>
+                        <td><strong><?php echo number_format((($avg_Q2_used > 0 ?$avg_Q2_used:1)/($avg_Q2_budget> 0 ?$avg_Q2_budget:1))*100, 0, ',', '.');; ?></strong></td>
                         <td><strong><?php echo number_format(($tot_smt1_used/$tot_smt1_budget)*100, 0, ',', '.'); ?></strong></td>
                         <td><strong><?php echo number_format(($avg_smt1_used/$avg_smt1_budget)*100, 0, ',', '.');; ?></strong></td>
-                        <td><?php echo number_format(($detail_quota_used->BLN10/$detail_quota_budget->DATA_10)*100, 0, ',', '.'); ?></td>
-                        <td><?php echo number_format(($detail_quota_used->BLN11/$detail_quota_budget->DATA_11)*100, 0, ',', '.'); ?></td>
-                        <td><?php echo number_format(($detail_quota_used->BLN12/$detail_quota_budget->DATA_12)*100, 0, ',', '.'); ?></td>
-                        <td><strong><?php echo number_format(($tot_Q3_used/$tot_Q3_budget)*100, 0, ',', '.'); ?></strong></td>
-                        <td><strong><?php echo number_format(($avg_Q3_used/$avg_Q3_budget)*100, 0, ',', '.');; ?></strong></td>
-                        <td><?php echo number_format(($detail_quota_used->BLN12/$detail_quota_budget->DATA_01)*100, 0, ',', '.'); ?></td>
-                        <td><?php echo number_format(($detail_quota_used->BLN12/$detail_quota_budget->DATA_02)*100, 0, ',', '.'); ?></td>
-                        <td><?php echo number_format(($detail_quota_used->BLN12/$detail_quota_budget->DATA_03)*100, 0, ',', '.'); ?></td>
-                        <td><strong><?php echo number_format(($tot_Q4_used/$tot_Q4_budget)*100, 0, ',', '.'); ?></strong></td>
-                        <td><strong><?php echo number_format(($avg_Q4_used/$avg_Q4_budget)*100, 0, ',', '.');; ?></strong></td>
-                        <td><strong><?php echo number_format(($tot_smt2_used/$tot_smt2_budget)*100, 0, ',', '.'); ?></strong></td>
-                        <td><strong><?php echo number_format(($avg_smt2_used/$avg_smt2_budget)*100, 0, ',', '.');; ?></strong></td>
-                        <td><strong><?php echo number_format(($tot_fy_used/$tot_fy_budget)*100, 0, ',', '.'); ?></strong></td>
-                        <td><strong><?php echo number_format(($avg_fy_used/$avg_fy_budget)*100, 0, ',', '.');; ?></strong></td>
+                        <td><?php echo number_format((($detail_quota_used->BLN10 > 0 ? $detail_quota_used->BLN10:1)/($detail_quota_budget->DATA_10 > 0? $detail_quota_budget->DATA_10:1))*100, 0, ',', '.'); ?></td>
+                        <td><?php echo number_format((($detail_quota_used->BLN11 > 0 ? $detail_quota_used->BLN11:1)/($detail_quota_budget->DATA_11 > 0? $detail_quota_budget->DATA_11:1))*100, 0, ',', '.'); ?></td>
+                        <td><?php echo number_format((($detail_quota_used->BLN12 > 0 ? $detail_quota_used->BLN12:1)/($detail_quota_budget->DATA_12 > 0? $detail_quota_budget->DATA_12:1))*100, 0, ',', '.'); ?></td>
+                        <td><strong><?php echo number_format((($tot_Q3_used > 0 ?$tot_Q3_used:1)/($tot_Q3_budget> 0 ?$tot_Q3_budget:1))*100, 0, ',', '.'); ?></strong></td>
+                        <td><strong><?php echo number_format((($avg_Q3_used > 0 ?$avg_Q3_used:1)/($avg_Q3_budget> 0 ?$avg_Q3_budget:1))*100, 0, ',', '.');; ?></strong></td>
+                        <td><?php echo number_format((($detail_quota_used->BLN13 > 0 ? $detail_quota_used->BLN13:1)/($detail_quota_budget->DATA_01 > 0? $detail_quota_budget->DATA_01:1))*100, 0, ',', '.'); ?></td>
+                        <td><?php echo number_format((($detail_quota_used->BLN14 > 0 ? $detail_quota_used->BLN14:1)/($detail_quota_budget->DATA_02 > 0? $detail_quota_budget->DATA_02:1))*100, 0, ',', '.'); ?></td>
+                        <td><?php echo number_format((($detail_quota_used->BLN15 > 0 ? $detail_quota_used->BLN15:1)/($detail_quota_budget->DATA_03 > 0? $detail_quota_budget->DATA_03:1))*100, 0, ',', '.'); ?></td>
+                        <td><strong><?php echo number_format((($tot_Q4_used > 0 ?$tot_Q4_used:1)/($tot_Q4_budget> 0 ?$tot_Q4_budget:1))*100, 0, ',', '.'); ?></strong></td>
+                        <td><strong><?php echo number_format((($avg_Q4_used > 0 ?$avg_Q4_used:1)/($avg_Q4_budget> 0 ?$avg_Q4_budget:1))*100, 0, ',', '.');; ?></strong></td>
+                        <td><strong><?php echo number_format((($tot_smt2_used >0?$tot_smt2_used:1)/($tot_smt2_budget>0 ?$tot_smt2_budget:1))*100, 0, ',', '.'); ?></strong></td>
+                        <td><strong><?php echo number_format((($avg_smt2_used >0?$avg_smt2_used:1)/($avg_smt2_budget>0 ?$avg_smt2_budget:1))*100, 0, ',', '.');; ?></strong></td>
+                        <td><strong><?php echo number_format((($tot_fy_used > 0 ?$tot_fy_used:1)/($tot_fy_budget> 0 ?$tot_fy_budget:1))*100, 0, ',', '.'); ?></strong></td>
+                        <td><strong><?php echo number_format((($avg_fy_used > 0 ?$avg_fy_used:1)/($avg_fy_budget> 0 ?$avg_fy_budget:1))*100, 0, ',', '.');; ?></strong></td>
                     </tr>
                 <?php
                 } else {

@@ -36,8 +36,7 @@
         getTempOvertimeList($("#datepicker1").val(), $("#section").val(), $("#dept").val());
 
     });
-</script>
-<script>
+
     function getDetailOvertime(no_sequence) {
         $.ajax({
             async: false,
@@ -206,10 +205,11 @@
 
                 if (json_data.msg) {
                     alert(json_data.msg);
-                    $("#close_add_employee").click();
+                    // $("#close_add_employee").click();
                     return false;
                 } else {
                     getDetailOvertime(json_data.no_sequence);
+                    $('#modalAdd').modal('hide');
                 }
             },
             error: function(request) {
@@ -282,8 +282,6 @@
             }
         }
         objek.value = Number(c);
-
-
     }
 
     function Number(s) {
@@ -295,45 +293,18 @@
         }
         return s;
     }
+
+    function checkreason() {
+
+        if (!$.trim($("#alasan_id").val())) {
+            alert('alasan overtime requested');
+            return false;
+        } else {
+            $('#modalAdd').modal({backdrop: 'static', keyboard: false}) 
+            $('#modalAdd').modal('show');
+        }
+    }
 </script>
-
-<style type="text/css">
-    th,
-    td {
-        white-space: nowrap;
-    }
-
-    div.dataTables_wrapper {
-        margin: 0 auto;
-    }
-
-    #table-luar {
-        font-size: 11px;
-    }
-
-    #filter {
-        border-spacing: 10px;
-        border-collapse: separate;
-    }
-
-    .td-fixed {
-        width: 30px;
-    }
-
-    .td-no {
-        width: 10px;
-    }
-
-    .ddl {
-        width: 100px;
-        height: 30px;
-    }
-
-    .ddl2 {
-        width: 180px;
-        height: 30px;
-    }
-</style>
 
 <aside class="right-side">
     <section class="content-header">
@@ -380,7 +351,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" style='display:none;'>
                             <label class="col-sm-3 control-label">Dept</label>
                             <div class="col-sm-3">
                                 <div class="input-group">
@@ -389,7 +360,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" style='display:none;'>
                             <label class="col-sm-3 control-label">Section</label>
                             <div class="col-sm-3">
                                 <div class="input-group">
@@ -423,11 +394,11 @@
 
                         <div class="form-group">
                             <label class="col-sm-3 control-label">PIC</label>
-                            <div class="col-sm-3">
+                            <div class="col-sm-4">
                                 <div class="input-group">
                                     <select class="form-control" name="NPK_PIC" id="pic_id">
                                         <?php foreach ($all_pic as $row) { ?>
-                                            <option value="<?php echo $row->NPK; ?>"><?php echo $row->NPK . ' - ' . $row->NAMA; ?></option>
+                                            <option value="<?php echo $row->NPK; ?>"><?php echo $row->NAMA; ?></option>
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -443,42 +414,28 @@
 
                         <div class="pull-right">
                             <span style='padding-right:850px;text-decoration: underline;'></span>
-                            <a data-toggle="modal" data-target="#modalAdd" data-placement="left" data-toggle="tooltip" title="Add Employee" class='btn btn-primary'><span class="fa fa-plus"></span>&nbsp;&nbsp;Add Employee</a>
+                            <a onclick="checkreason();" data-placement="left" data-toggle="tooltip" title="Add Employee" class='btn btn-primary'><span class="fa fa-plus"></span>&nbsp;&nbsp;Add Employee</a>
                         </div>
 
-                        <div id="table-luar">
-                            <table style="margin-bottom:10px;" id="dataTables31" class="table table-condensed table-bordered table-striped table-hover display" cellspacing="0" width="100%">
+                        <table style="margin-bottom:10px;" class="table table-condensed table-bordered table-striped table-hover display" cellspacing="0" width="100%">
                                 <thead>
                                     <tr>
-                                        <th rowspan="2" style="vertical-align: middle;text-align:center;">No</th>
-                                        <th rowspan="2" style="vertical-align: middle;text-align:center;">NPK</th>
-                                        <th rowspan="2" style="vertical-align: middle;text-align:center;">Nama</th>
-
-                                        <th style="vertical-align: middle;text-align:center;" colspan="3">Planning (H)</th>
-                                        <th style="vertical-align: middle;text-align:center;" colspan="3">Realization (H)</th>
-
-                                        <th rowspan="2" style="vertical-align: middle;text-align:center;">Terpakai</th>
-                                        <th rowspan="2" style="vertical-align: middle;text-align:center;">Sisa</th>
-                                        <th rowspan="2" style="vertical-align: middle;text-align:center;">Actions</th>
-                                    </tr>
-                                    <tr>
-                                        <td style="white-space:pre-wrap ; word-wrap:break-word;vertical-align: middle;text-align:center;background: #F4F4F4">Start</td>
-                                        <td style="white-space:pre-wrap ; word-wrap:break-word;vertical-align: middle;text-align:center;background: #F4F4F4">End</td>
-                                        <td style="white-space:pre-wrap ; word-wrap:break-word;vertical-align: middle;text-align:center;background: #F4F4F4">Duration</td>
-                                        <td style="white-space:pre-wrap ; word-wrap:break-word;vertical-align: middle;text-align:center;background: #F4F4F4">Start</td>
-                                        <td style="white-space:pre-wrap ; word-wrap:break-word;vertical-align: middle;text-align:center;background: #F4F4F4">End</td>
-                                        <td style="white-space:pre-wrap ; word-wrap:break-word;vertical-align: middle;text-align:center;background: #F4F4F4">Duration</td>
+                                        <th style="text-align:center;">No</th>
+                                        <th style="text-align:center;">NPK</th>
+                                        <th style="text-align:center;">Nama</th>
+                                        <th style="text-align:center;">Start Time</th>
+                                        <th style="text-align:center;">End Time</th>
+                                        <th style="text-align:center;">Duration</th>
+                                        <th style="text-align:center;">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="list_of_npk_overtime">
                                     <tr>
-                                        <td colspan="11">No data available in table
+                                        <td colspan="7">No data available in table
                                         <td>
                                     </tr>
                                 </tbody>
-                            </table>
-                            <!-- <span>Showing 0 to 0 of 0 entries</span> -->
-                        </div>
+                        </table>
 
                         <div class="form-group">
                             <div class="col-sm-12 text-center">
@@ -538,10 +495,10 @@
                                                     <select onchange='change_employee_by_dept(this.options[this.selectedIndex].value)' name="DEPT_SELECTED" class="form-control">
                                                         <?php foreach ($all_dept as $row) { ?>
                                                             <option value="<?php echo $row->KODE; ?>" <?php
-                                                                                                        if ($dept == trim($row->KODE)) {
-                                                                                                            echo 'SELECTED';
-                                                                                                        }
-                                                                                                        ?>><?php echo trim($row->KODE); ?></option>
+                                                                if ($dept == trim($row->KODE)) {
+                                                                    echo 'SELECTED';
+                                                                }
+                                                                ?>><?php echo trim($row->KODE); ?></option>
                                                         <?php } ?>
                                                     </select>
                                                 </div>
@@ -602,8 +559,8 @@
                                         </div>
                                         <div class="modal-footer">
                                             <div class="btn-group">
-                                                <button type="button" id="close_add_employee" class="btn btn-default" data-dismiss="modal">Close</button>
-                                                <a id="btn-ok" onclick="addNpk();" class="btn btn-primary" data-dismiss="modal" data-placement="left" data-toggle="tooltip" title="Add Employee"><i class="fa fa-check"></i> Add</a>
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                <a id="btn-ok" onclick="addNpk();" class="btn btn-primary" data-placement="left" data-toggle="tooltip" title="Add Employee"><i class="fa fa-check"></i> Add</a>
                                             </div>
                                         </div>
                                     </div>
