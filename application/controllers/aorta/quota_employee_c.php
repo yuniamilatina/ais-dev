@@ -5,8 +5,8 @@ class quota_employee_c extends CI_Controller
 {
 
     private $layout = '/template/head';
-    private $back_to_approve_spv = '/aorta/quota_employee_c/prepare_approve_quota_by_spv/';
-    private $back_to_approve_mgr = '/aorta/quota_employee_c/prepare_approve_quota_by_mgr/';
+    private $back_to_approve_mgr = '/aorta/quota_employee_c/prepare_approve_quota_by_spv/';
+    private $back_to_approve_spv = '/aorta/quota_employee_c/prepare_approve_quota_by_mgr/';
     private $back_to_approve_gm = '/aorta/quota_employee_c/prepare_approve_quota_by_gm/';
     private $back_to_approve_dir = '/aorta/quota_employee_c/prepare_approve_quota_by_dir/';
     private $back_to_upload = '/aorta/quota_employee_c/create_quota_employee/';
@@ -89,7 +89,7 @@ class quota_employee_c extends CI_Controller
             $data['all_dept'] = $this->dept_m->get_data_dept($id_dept)->result();
         }
 
-        $data['all_section'] = $this->overtime_m->get_section_by_dept($dept);
+        $data['all_section'] = $this->overtime_m->get_all_section_drop($dept);
 
         if ($section == NULL) {
             $section = 'ALL';
@@ -116,7 +116,7 @@ class quota_employee_c extends CI_Controller
         $data['role'] = $role;
         $data['npk'] = $npk;
 
-        $data['data'] = $this->quota_employee_m->get_data_request_quota_employee($dept, $section, $period);
+        $data['data'] = $this->quota_employee_m->get_data_request_quota_employee($data['dept'], $section, $period);
         $data['content'] = 'aorta/quota_employee/manage_quota_employee_v';
         $this->load->view($this->layout, $data);
     }
@@ -1479,7 +1479,7 @@ class quota_employee_c extends CI_Controller
         $data['app'] = $this->role_module_m->get_app();
         $data['module'] = $this->role_module_m->get_module();
         $data['function'] = $this->role_module_m->get_function();
-        $data['sidebar'] = $this->role_module_m->side_bar(152);
+        $data['sidebar'] = $this->role_module_m->side_bar(362);
         $data['news'] = $this->news_m->get_news();
         $data['title'] = 'Approval Quota Employee';
         $data['msg'] = $msg;
@@ -1510,7 +1510,7 @@ class quota_employee_c extends CI_Controller
             $data['all_dept'] = $this->dept_m->get_data_dept($id_dept)->result();
         }
 
-        $data['all_section'] = $this->overtime_m->get_section_by_dept($dept);
+        $data['all_section'] = $this->overtime_m->get_all_section_drop($dept);
 
         if ($section == NULL) {
             $section = 'ALL';
@@ -1941,12 +1941,6 @@ class quota_employee_c extends CI_Controller
         echo json_encode($json_data);
     }
 
-    // function getChartDetailQuotaPlanbyNo($no_sequence){
-    //     $data = $this->quota_employee_m->get_plan_quota_by_sequence($no_sequence);
-    // }
-
-
-    //MGR
     function prepare_approve_quota_by_mgr($period = NULL, $dept = NULL, $section = NULL, $msg = NULL)
     {
         if ($msg == 4) {
@@ -2027,6 +2021,7 @@ class quota_employee_c extends CI_Controller
         $time = date('His');
 
         $data = array(
+            'SPV_APPROVE' => 1,
             'KADEP_APPROVE' => 1,
             'OPER_KADEP_APPROVE' => $this->session->userdata('USERNAME'),
             'TGL_KADEP_APPROVE' => $date,
@@ -2061,6 +2056,7 @@ class quota_employee_c extends CI_Controller
         $time = date('His');
 
         $data = array(
+            'SPV_APPROVE' => 0,
             'KADEP_APPROVE' => 0,
             'OPER_KADEP_APPROVE' => '',
             'TGL_KADEP_APPROVE' => '',
@@ -3832,7 +3828,6 @@ class quota_employee_c extends CI_Controller
 
     function balancing_quota()
     {
-
         $data['app'] = $this->role_module_m->get_app();
         $data['module'] = $this->role_module_m->get_module();
         $data['function'] = $this->role_module_m->get_function();
@@ -3881,6 +3876,7 @@ class quota_employee_c extends CI_Controller
         }
 
         $data['all_section'] = $this->overtime_m->get_all_section_drop($dept);
+        // $data['all_section'] = $this->overtime_m->get_section_overtime($dept);
 
         if ($section == NULL) {
             $section = 'ALL';
@@ -4061,8 +4057,8 @@ class quota_employee_c extends CI_Controller
         }
 
         $data['section'] = $section;
-        $data['plan'] = $this->quota_employee_m->get_plan_quota_accumulation_by_dept_and_period($period, $dept, $section);
-        $data['actl'] = $this->quota_employee_m->get_actl_quota_accumulation_by_dept_and_period($period, $dept, $section);
+        $data['plan_cum'] = $this->quota_employee_m->get_plan_quota_accumulation_by_dept_and_period($period, $dept, $section);
+        $data['actl_cum'] = $this->quota_employee_m->get_actl_quota_accumulation_by_dept_and_period($period, $dept, $section);
         $data['first_sunday'] = $this->firstSunday(substr($period, 0, 4) . '-' . substr($period, 4, 2));
         $data['first_saturday'] = $this->firstSaturday(substr($period, 0, 4) . '-' . substr($period, 4, 2));
 
@@ -4496,7 +4492,8 @@ class quota_employee_c extends CI_Controller
     {
         $kode_dept = $this->input->post("KODE");
 
-        $data_section = $this->overtime_m->get_all_section_drop($kode_dept);
+        // $data_section = $this->overtime_m->get_all_section_drop($kode_dept);
+        $data_section = $this->overtime_m->get_section_overtime($kode_dept);
         $section = 'ALL';
         $data = '';
 

@@ -37,7 +37,7 @@ class report_quota_employee_c extends CI_Controller
             $period = date('Ym');
         }
 
-        if ($role == 1 || $role == 4 || $role == 3) {
+        if ($role == 1 || $role == 4 || $role == 3 || $role == 6) {
             if ($dept == NULL) {
                 $dept = $this->dept_m->get_top_data_dept_by_division($id_division)->row()->CHR_DEPT;
             } else {
@@ -75,7 +75,7 @@ class report_quota_employee_c extends CI_Controller
         $data['period'] = $period;
         $data['role'] = $role;
         $data['npk'] = $npk;
-        $data['data'] = $this->quota_employee_m->get_quota_employee($period, $dept, $section);
+        $data['data'] = $this->quota_employee_m->get_quota_employee_with_group($period, $dept, $section);
 
         $this->load->view($this->layout, $data);
     }
