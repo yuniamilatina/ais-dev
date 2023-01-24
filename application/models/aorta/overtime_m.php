@@ -32,14 +32,15 @@ class overtime_m extends CI_Model
         }
     }
 
-    function delete($no_sequence, $tgl_overtime){
+    function delete($no_sequence, $tgl_overtime)
+    {
         $aortadb = $this->load->database("aorta", TRUE);
 
         $aortadb->query("UPDATE TT_KRY_OVERTIME SET FLG_DELETE = 1 WHERE NO_SEQUENCE = '$no_sequence' AND TGL_OVERTIME = '$tgl_overtime'");
-       
     }
 
-    function increase_quota_employee_by_no_sequence($no_sequence, $period){
+    function increase_quota_employee_by_no_sequence($no_sequence, $period)
+    {
         $aortadb = $this->load->database("aorta", TRUE);
 
         $data = $aortadb->query("SELECT RTRIM(NPK) NPK, ROUND(CONVERT(FLOAT,RENC_DURASI_OV_TIME) / 60,2) RENC_DURASI_OV_TIME 
@@ -142,17 +143,15 @@ class overtime_m extends CI_Model
     {
         $aortadb = $this->load->database("aorta", TRUE);
 
-        if($section == 'ALL'){
-            return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, SUM(CAST(REAL_MULAI_OV_TIME AS INT))/60 AS REAL_MULAI_OV_TIME, SUM(CAST(REAL_SELESAI_OV_TIME AS INT))/60 AS REAL_SELESAI_OV_TIME, CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, FLG_DOWNLOAD, ALASAN
+        if ($section == 'ALL') {
+            return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, SUM(CAST(REAL_MULAI_OV_TIME AS INT))/60 AS REAL_MULAI_OV_TIME, SUM(CAST(REAL_SELESAI_OV_TIME AS INT))/60 AS REAL_SELESAI_OV_TIME, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, FLG_DOWNLOAD, ALASAN
             FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME LIKE '$period%' AND KD_DEPT = '$dept' AND FLG_DELETE = 0
-                GROUP BY CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
-                ORDER BY NO_SEQUENCE DESC
+                GROUP BY CEK_GM, CEK_KADEP, CEK_SPV, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
                 ")->result();
-        }else{
-            return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, SUM(CAST(REAL_MULAI_OV_TIME AS INT))/60 AS REAL_MULAI_OV_TIME, SUM(CAST(REAL_SELESAI_OV_TIME AS INT))/60 AS REAL_SELESAI_OV_TIME, CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, KD_SECTION, FLG_DOWNLOAD, ALASAN
+        } else {
+            return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, SUM(CAST(REAL_MULAI_OV_TIME AS INT))/60 AS REAL_MULAI_OV_TIME, SUM(CAST(REAL_SELESAI_OV_TIME AS INT))/60 AS REAL_SELESAI_OV_TIME, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, KD_SECTION, FLG_DOWNLOAD, ALASAN
             FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME LIKE '$period%' AND KD_DEPT = '$dept' AND KD_SECTION = '$section' AND FLG_DELETE = 0
-                GROUP BY CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_SECTION, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
-                ORDER BY NO_SEQUENCE DESC
+                GROUP BY CEK_GM, CEK_KADEP, CEK_SPV, KD_SECTION, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
                 ")->result();
         }
     }
@@ -165,13 +164,13 @@ class overtime_m extends CI_Model
             return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, SUM(CAST(REAL_MULAI_OV_TIME AS INT))/60 AS REAL_MULAI_OV_TIME, SUM(CAST(REAL_SELESAI_OV_TIME AS INT))/60 AS REAL_SELESAI_OV_TIME, CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, FLG_DOWNLOAD, ALASAN
             FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME LIKE '$period%' AND KD_DEPT = '$dept' AND FLG_DELETE = 0
                 GROUP BY CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
-                ORDER BY CEK_SPV_PLAN
+                ORDER BY CEK_SPV
                 ")->result();
         }else{
             return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, SUM(CAST(REAL_MULAI_OV_TIME AS INT))/60 AS REAL_MULAI_OV_TIME, SUM(CAST(REAL_SELESAI_OV_TIME AS INT))/60 AS REAL_SELESAI_OV_TIME, CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, KD_SECTION, FLG_DOWNLOAD, ALASAN
             FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME LIKE '$period%' AND KD_DEPT = '$dept' AND KD_SECTION = '$section' AND FLG_DELETE = 0
                 GROUP BY CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_SECTION, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
-                ORDER BY CEK_SPV_PLAN
+                ORDER BY CEK_SPV
                 ")->result();
         }
     }
@@ -180,41 +179,38 @@ class overtime_m extends CI_Model
     {
         $aortadb = $this->load->database("aorta", TRUE);
 
-        if($section == 'ALL'){
+        if ($section == 'ALL') {
             return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, FLG_DOWNLOAD, ALASAN
-            FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME LIKE '$period%' AND KD_DEPT = '$dept' AND CEK_SPV = '1'
-                GROUP BY CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
-                ORDER BY CEK_KADEP
-                ")->result();
-        }else{
+                FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME LIKE '$period%' AND KD_DEPT = '$dept' AND CEK_SPV = '1' AND FLG_DELETE = '0'
+                    GROUP BY CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
+                    ORDER BY CEK_KADEP
+                    ")->result();
+        } else {
             return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, KD_SECTION, FLG_DOWNLOAD, ALASAN
-            FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME LIKE '$period%' AND KD_DEPT = '$dept' AND KD_SECTION = '$section' AND CEK_SPV = '1'
-                GROUP BY CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_SECTION, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
-                ORDER BY CEK_KADEP
-                ")->result();
+                FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME LIKE '$period%' AND KD_DEPT = '$dept' AND KD_SECTION = '$section' AND CEK_SPV = '1' AND FLG_DELETE = '0'
+                    GROUP BY CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_SECTION, NO_SEQUENCE, TGL_OVERTIME, FLG_DOWNLOAD, KD_DEPT, ALASAN
+                    ORDER BY CEK_KADEP
+                    ")->result();
         }
-
-
     }
 
     function get_data_overtime_by_gm($dept, $period, $section)
     {
         $aortadb = $this->load->database("aorta", TRUE);
 
-        if($section == 'ALL'){
+        if ($section == 'ALL') {
             return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, FLG_DOWNLOAD, ALASAN
-            FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME LIKE '$period%' AND KD_DEPT = '$dept' AND CEK_KADEP = '1'
+            FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME LIKE '$period%' AND KD_DEPT = '$dept' AND CEK_KADEP = '1' 
                     GROUP BY CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
                     ORDER BY CEK_GM
                     ")->result();
-        }else{
+        } else {
             return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, KD_SECTION, FLG_DOWNLOAD, ALASAN
-            FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME LIKE '$period%' AND KD_DEPT = '$dept' AND KD_SECTION = '$section' AND CEK_KADEP = '1'
+            FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME LIKE '$period%' AND KD_DEPT = '$dept' AND KD_SECTION = '$section' AND CEK_KADEP = '1' 
                     GROUP BY CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_SECTION, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
                     ORDER BY CEK_GM
                     ")->result();
         }
-
     }
 
     function get_data_approve_overtime_by_spv($dept, $section)
@@ -225,13 +221,11 @@ class overtime_m extends CI_Model
             return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, SUM(CAST(REAL_MULAI_OV_TIME AS INT))/60 AS REAL_MULAI_OV_TIME, SUM(CAST(REAL_SELESAI_OV_TIME AS INT))/60 AS REAL_SELESAI_OV_TIME, CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, FLG_DOWNLOAD, ALASAN
             FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME >= DATEADD(MONTH, -3, GETDATE()) AND KD_DEPT = '$dept' AND FLG_DELETE = '0' AND CEK_SPV = '0' AND CEK_KADEP = '0'
                 GROUP BY  CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
-                ORDER BY NO_SEQUENCE DESC
                 ")->result();
         }else{
             return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, SUM(CAST(REAL_MULAI_OV_TIME AS INT))/60 AS REAL_MULAI_OV_TIME, SUM(CAST(REAL_SELESAI_OV_TIME AS INT))/60 AS REAL_SELESAI_OV_TIME, CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, KD_SECTION, FLG_DOWNLOAD, ALASAN
             FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME >= DATEADD(MONTH, -3, GETDATE()) AND KD_DEPT = '$dept' AND KD_SECTION = '$section' AND FLG_DELETE = '0' AND CEK_SPV = '0' AND CEK_KADEP = '0'
                 GROUP BY  CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_SECTION, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
-                ORDER BY NO_SEQUENCE DESC
                 ")->result();
         }
     }
@@ -244,18 +238,15 @@ class overtime_m extends CI_Model
             return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, FLG_DOWNLOAD, ALASAN
             FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME >= DATEADD(MONTH, -3, GETDATE()) AND KD_DEPT = '$dept' AND CEK_KADEP = '0'
                 GROUP BY CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
-                ORDER BY NO_SEQUENCE DESC
                 ")->result();
         }else{
             return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, KD_SECTION, FLG_DOWNLOAD, ALASAN
             FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME >= DATEADD(MONTH, -3, GETDATE()) AND KD_DEPT = '$dept' AND KD_SECTION = '$section' AND CEK_KADEP = '0'
                 GROUP BY CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_SECTION, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
-                ORDER BY NO_SEQUENCE DESC
                 ")->result();
         }
-
-
     }
+
     function get_data_approve_overtime_by_spv_mgr($dept, $section)
     {
         $aortadb = $this->load->database("aorta", TRUE);
@@ -264,13 +255,11 @@ class overtime_m extends CI_Model
             return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, FLG_DOWNLOAD, ALASAN
             FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME >= DATEADD(MONTH, -3, GETDATE()) AND KD_DEPT = '$dept' AND CEK_SPV = '1' AND CEK_KADEP = '0'
                 GROUP BY CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
-                ORDER BY NO_SEQUENCE DESC
                 ")->result();
         }else{
             return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, KD_SECTION, FLG_DOWNLOAD, ALASAN
             FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME >= DATEADD(MONTH, -3, GETDATE()) AND KD_DEPT = '$dept' AND KD_SECTION = '$section' AND CEK_SPV = '1' AND CEK_KADEP = '0'
                 GROUP BY CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_SECTION, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
-                ORDER BY NO_SEQUENCE DESC
                 ")->result();
         }
     }
@@ -280,20 +269,19 @@ class overtime_m extends CI_Model
         $aortadb = $this->load->database("aorta", TRUE);
 
         if($section == 'ALL'){
-            return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, FLG_DOWNLOAD, ALASAN
+            return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN,  CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, FLG_DOWNLOAD, ALASAN
             FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME >= DATEADD(MONTH, -3, GETDATE()) AND KD_DEPT = '$dept' AND CEK_KADEP = '1' AND CEK_GM = '0'
                     GROUP BY CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
-                    ORDER BY NO_SEQUENCE DESC
                     ")->result();
         }else{
             return $aortadb->query("SELECT NO_SEQUENCE, TGL_OVERTIME, COUNT(NPK) AS TOT_MP, SUM(CAST(RENC_DURASI_OV_TIME AS DECIMAL(10,2)))/60 AS RENC_DURASI_OV_TIME, CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_DEPT, KD_SECTION, FLG_DOWNLOAD, ALASAN
             FROM TT_KRY_OVERTIME WHERE TGL_OVERTIME >= DATEADD(MONTH, -3, GETDATE()) AND KD_DEPT = '$dept' AND KD_SECTION = '$section' AND CEK_KADEP = '1' AND CEK_GM = '0'
-                    GROUP BY CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_SECTION, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
-                    ORDER BY NO_SEQUENCE DESC
+                    GROUP BY CEK_GM_PLAN, CEK_KADEP_PLAN, CEK_SPV_PLAN, CEK_GM, CEK_KADEP, CEK_SPV, KD_SECTION, NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, FLG_DOWNLOAD, ALASAN
                     ")->result();
         }
 
     }
+
 
     function get_notif_overtime_by_no_spkl($nospkl)
     {
@@ -353,7 +341,7 @@ class overtime_m extends CI_Model
                         GROUP BY NO_SEQUENCE, CHR_DESC_CAT,TGL_OVERTIME, A.KD_DEPT, A.KD_SECTION, 
                         KETERANGAN, A.KD_SUB_SECTION, HARI_KJ, ALASAN, K.NAMA, A.CEK_DIR, A.CEK_GM, A.CEK_KADEP
             ")->row();
-             // LEFT JOIn CTE C ON C.KD_SECTION = A.KD_SECTION
+        // LEFT JOIn CTE C ON C.KD_SECTION = A.KD_SECTION
     }
 
     function get_temp_data_overtime_by_organization($dept, $section, $tanggal)
@@ -457,6 +445,7 @@ class overtime_m extends CI_Model
     function update_overtime_by_id($data, $id)
     {
         $aortadb = $this->load->database("aorta", TRUE);
+
         $aortadb->where('NO_SEQUENCE', $id);
         $aortadb->update($this->tabel, $data);
     }
@@ -530,7 +519,7 @@ class overtime_m extends CI_Model
         $query = $aortadb->query("SELECT RTRIM(KODE) KODE FROM TM_SECTION WHERE KODE_DEP = '$dept' AND FLG_DELETE = 0 ")->result();
         return $query;
     }
-    
+
     function get_all_section_drop($dept)
     {
         $aortadb = $this->load->database("aorta", TRUE);
@@ -539,7 +528,7 @@ class overtime_m extends CI_Model
         return $query;
     }
 
-    function get_top_section_overtime($dept)
+    function get_top_section_overtime_by_mgr($dept)
     {
         $aortadb = $this->load->database("aorta", TRUE);
 
@@ -553,7 +542,7 @@ class overtime_m extends CI_Model
         }
     }
 
-    function get_top_section_overtime_by_mgr($dept)
+    function get_top_section_overtime($dept)
     {
         $aortadb = $this->load->database("aorta", TRUE);
 
@@ -663,7 +652,7 @@ class overtime_m extends CI_Model
     function get_employee_by_dept($dept)
     {
         $aortadb = $this->load->database("aorta", TRUE);
-        $query = $aortadb->query("SELECT NPK, NAMA FROM TM_KRY WHERE KD_DEPT = '$dept' AND FLAG_DELETE = 0 AND position IS NOT NULL")->result();
+        $query = $aortadb->query("SELECT NPK, NAMA FROM TM_KRY WHERE KD_DEPT = '$dept' AND FLAG_DELETE = 0 AND FLG_NOT_OT = 0 AND position IS NOT NULL")->result();
         return $query;
     }
 
@@ -671,13 +660,6 @@ class overtime_m extends CI_Model
     {
         $aortadb = $this->load->database("aorta", TRUE);
         $query = $aortadb->query("SELECT TOP 1 NPK, NAMA FROM TM_KRY WHERE KD_DEPT = '$dept' AND FLAG_DELETE = 0 AND position IS NOT NULL")->row();
-        return $query;
-    }
-
-    function get_employee_by_section($dept, $section)
-    {
-        $aortadb = $this->load->database("aorta", TRUE);
-        $query = $aortadb->query("SELECT NPK, NAMA FROM TM_KRY WHERE KD_DEPT = '$dept' AND KD_SECTION = '$section' AND FLAG_DELETE = 0 AND position IS NOT NULL")->result();
         return $query;
     }
 
@@ -909,19 +891,15 @@ class overtime_m extends CI_Model
                         COUNT(A.NPK) AS KRY,
                         SUM(CAST(REPLACE(A.QUOTA_STD,',','.') AS DECIMAL(10,2))) AS QUOTA_STD,
                         CAST(REPLACE(@budget_quota,',','.') AS DECIMAL(10,2)) AS INT_BUDGET_QUOTA,
-                        ---- QUOTA PRD BASED ON APPROVAL                 
                         SUM(ISNULL(C.QUANTITY_QUOTA_PR,0)) AS QUOTAPLAN,
                         SUM(CAST(REPLACE(A.TERPAKAIPLAN,',','.') AS DECIMAL(10,2))) AS TERPAKAIPLAN,
                         SUM(ISNULL(C.QUANTITY_QUOTA_PR,0)) - SUM(CAST(REPLACE(A.TERPAKAIPLAN,',','.') AS DECIMAL(10,2))) AS SISAPLAN,
-                        ---- QUOTA IMP BASED ON APPROVAL
                         SUM(ISNULL(C.QUANTITY_QUOTA_IM,0)) AS QUOTAPLAN1,
                         SUM(CAST(REPLACE(A.TERPAKAIPLAN1,',','.') AS DECIMAL(10,2))) AS TERPAKAIPLAN1,
                         SUM(ISNULL(C.QUANTITY_QUOTA_IM,0)) - SUM(CAST(REPLACE(A.TERPAKAIPLAN1,',','.') AS DECIMAL(10,2))) AS SISAPLAN1,
-                        ---- AVG QUOTA PRD BASED ON APPROVAL
                         AVG(CAST(REPLACE(A.TERPAKAIPLAN,',','.') AS DECIMAL(10,2)))/22 AS AVG_OT,
                         AVG(ISNULL(C.QUANTITY_QUOTA_PR,0))/22 AS AVG_QUOTA,
                         AVG(ISNULL(C.QUANTITY_QUOTA_PR,0) - CAST(REPLACE(A.TERPAKAIPLAN,',','.') AS DECIMAL(10,2)))/22 AS AVG_SISA,
-                        ---- AVG QUOTA IMP BASED ON APPROVAL
                         AVG(CAST(REPLACE(A.TERPAKAIPLAN1,',','.') AS DECIMAL(10,2)))/22 AS AVG_OT1,
                         AVG(ISNULL(C.QUANTITY_QUOTA_IM,0))/22 AS AVG_QUOTA1,
                         AVG(ISNULL(C.QUANTITY_QUOTA_IM,0) - CAST(REPLACE(A.TERPAKAIPLAN1,',','.') AS DECIMAL(10,2)))/22 AS AVG_SISA1
@@ -1340,11 +1318,12 @@ class overtime_m extends CI_Model
         return $query;
     }
 
-    public function getHeaderOvertimebyId($no_sequence){
+    public function getHeaderOvertimebyId($no_sequence)
+    {
         $aortadb = $this->load->database("aorta", TRUE);
 
         $data =  $aortadb->query("SELECT TOP 1 NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, KD_SECTION FROM TT_KRY_OVERTIME WHERE NO_SEQUENCE = '$no_sequence' GROUP BY  NO_SEQUENCE, TGL_OVERTIME, KD_DEPT, KD_SECTION");
-    
+
         return $data->row();
     }
 
