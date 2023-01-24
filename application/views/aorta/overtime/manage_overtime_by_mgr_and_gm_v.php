@@ -77,7 +77,7 @@
                         <div class="pull">
                         <?php if ($dept == '-') {
                             echo '-';
-                        } else if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA') {?> 
+                        } else if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA' || $dept == 'PPC') {?> 
                             <div style="width: 100%;">
                                 <table style="background:#fce0de;color:#85172d;" width="100%" id='filter' border=0px style="outline: thin ridge #DDDDDD">
                                     <tr>
@@ -99,7 +99,7 @@
                                     <td width="10%" style='text-align:left;'><strong>Periode / Dept / Section</strong></td>
                                     <td width="10%">
                                         <select class="ddl" id="tanggal" onChange="document.location.href = this.options[this.selectedIndex].value;">
-                                            <?php for ($x = -24; $x <= 1; $x++) {
+                                            <?php for ($x = -3; $x <= 1; $x++) {
                                                 $y = $x * 28 ?>
                                                 <option value="<? echo site_url('aorta/overtime_c/prepare_approve_ot_by_mgr_and_gm/' . date("Ym", strtotime("+$y day")) . '/' . trim($dept) . '/' . trim($section)); ?>" <?php
                                                                                                                                                                                                                             if ($period == date("Ym", strtotime("+$y day"))) {
@@ -155,7 +155,7 @@
                                         <th style="text-align:center;">Total MP</th>
                                         <th style="text-align:center;">Plan OT (H)</th>
                                         <?php
-                                            if($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA'){
+                                            if($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA' || $dept == 'PPC'){
                                                 echo "<th style='text-align:center;'>Planing</th>";
                                             } else{
                                                 echo "<th style='text-align:center;'>Action</th>";
@@ -180,6 +180,10 @@
                                             $color = 'background:#7DD488;color:#fff;';
                                             $display = 'disabled';
                                         }
+                                        if ($isi->CEK_GM == 1 && $isi->FLG_DOWNLOAD == 1) {
+                                            $color = 'background:#71AEF5;color:#fff;';
+                                            $display = 'disabled';
+                                        }
                                         if ($isi->CEK_KADEP == '-' && $isi->CEK_GM == '-') {
                                             $color = '';
                                             $display = 'disabled';
@@ -190,17 +194,33 @@
                                         echo "<td style='text-align:center;'>$i</td>";
 
                                         echo "<td style='$color'>$isi->NO_SEQUENCE</td>";
-                                        if (strlen($isi->ALASAN) > 80) {
-                                            echo "<td>" . substr($isi->ALASAN, 0, 80) . " ...</td>";
+                                        if (strlen($isi->ALASAN) > 70) {
+                                            echo "<td>" . substr($isi->ALASAN, 0, 70) . " ...</td>";
                                         } else {
                                             echo "<td>" . $isi->ALASAN . "</td>";
                                         }
                                         echo "<td align='center'><strong>$isi->TOT_MP</strong></td>";
                                         echo "<td align='center'><strong>" . number_format($isi->RENC_DURASI_OV_TIME, 2, ',', '.') . "</strong></td>";
                                     ?>
-                                    <?php if ($dept == '-') {
+                                        <!-- <td>
+                                            <?php
+                                            if ($isi->CEK_KADEP == '-' && $isi->CEK_GM == '-') {
+                                                echo '-';
+                                            } else if ($isi->CEK_KADEP == 0 && $isi->CEK_GM == 0) {
+                                            ?>
+                                                <a onclick="get_data_detail(<?php echo $isi->NO_SEQUENCE ?>);" data-toggle="modal" data-target="#modalDetailOvertime<?php echo $isi->NO_SEQUENCE ?>" data-placement="left" data-toggle="tooltip" title="View Detail" class="label label-info"><span class="fa fa-search"></span></a>
+                                                <a href="<?php echo base_url('index.php/aorta/overtime_c/approve_overtime_by_mgr_and_gm') . "/" . $isi->NO_SEQUENCE . "/" . $period . "/" . $dept . "/" . $section; ?>" class="label label-primary" data-placement="left" data-toggle="tooltip" title="Approve" onclick="return confirm('Are you sure want to Approve this overtime with code : ' + <?php echo $isi->NO_SEQUENCE ?>);"><span class="fa fa-thumbs-up"></span></a>
+
+                                            <?php } else { ?>
+                                                <a onclick="get_data_detail(<?php echo $isi->NO_SEQUENCE ?>);" data-toggle="modal" data-target="#modalDetailOvertime<?php echo $isi->NO_SEQUENCE ?>" data-placement="left" data-toggle="tooltip" title="View Detail" class="label label-info"><span class="fa fa-search"></span></a>
+                                                <a href="<?php echo base_url('index.php/aorta/overtime_c/unapprove_overtime_by_mgr_and_gm') . "/" . $isi->NO_SEQUENCE . "/" . $period . "/" . $dept . "/" . $section; ?>" class="label label-danger" data-placement="left" data-toggle="tooltip" title="Unapprove" onclick="return confirm('Are you sure want to Unapprove this overtime with code : ' + <?php echo $isi->NO_SEQUENCE ?>);"><span class="fa fa-thumbs-down"></span></a>
+
+                                            <?php } ?>
+                                        </td> -->
+
+                                        <?php if ($dept == '-') {
                                             echo '-';
-                                        } else if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA') {?>
+                                        } else if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA' || $dept == 'PPC') {?>
                                         <td align='center'>
                                             <?php
                                             if ($isi->CEK_KADEP == '-' && $isi->CEK_GM == '-') {
@@ -249,6 +269,7 @@
                                             <?php } ?>
                                         </td>
                                         <?php } ?>
+
                                         </tr>
                                     <?php
                                         $i++;
@@ -261,19 +282,19 @@
                         <div style="width: 60%;">
                             <table width="60%" id='filter' border=0px style="outline: thin ridge #DDDDDD">
                                 <tr>
-                                    <td width="3%" style='text-align:left;' colspan="4"><strong>L e g e n d : </strong></td>
+                                    <td width="3%" style='text-align:left;' colspan="4"><strong>L e g e n d (Realization): </strong></td>
                                     <td width="10%">
-                                        <button disabled style='border:0;background:#E63F53;width:25px;height:25px;color:white;'></button> : Not Yet Approved
+                                        <button disabled style='border:0;background:#FE2D45;width:25px;height:25px;color:white;'></button> : Not Yet Approved
                                     </td>
                                     <td width="10%">
                                         <button disabled style='border:0;background:#FFCA01;width:25px;height:25px;color:white;'></button> : Approved By MGR
                                     </td>
                                     <td width="10%">
-                                        <button disabled style='border:0;background:#7DD488;width:25px;height:25px;color:white;'></button> : Approved By GM
+                                        <button disabled style='border:0;background:#55D785;width:25px;height:25px;color:white;'></button> : Approved By GM
                                     </td>
                                     <td width="10%">
                                         <button disabled style='border:0;background:#71AEF5;width:25px;height:25px;color:white;' ></button> : Process by HRD
-                                        <span style = "font-size: 9px; color:gray;">(MIS, MSU, PCO)</span>
+                                        <span style = "font-size: 9px; color:gray;">(MIS, MSU, PCO, QUA, PPC)</span>
                                     </td>
                                 </tr>
                             </table>
@@ -512,25 +533,12 @@
                                             $color = 'background:#E63F53;color:#fff;';
                                             $display = 'enabled';
                                         }
-                                        if ($isi->CEK_KADEP == 1 && $isi->CEK_GM == 0) {
-                                            $color = 'background:#FFCA01;color:#fff;';
-                                            $display = 'enabled';
-                                        }
-                                        if ($isi->CEK_KADEP == 1 && $isi->CEK_GM == 1) {
-                                            $color = 'background:#7DD488;color:#fff;';
-                                            $display = 'disabled';
-                                        }
-                                        if ($isi->CEK_GM == 1 && $isi->FLG_DOWNLOAD == 1) {
-                                            $color = 'background:#71AEF5;color:#fff;';
-                                            $display = 'disabled';
-                                        }
                                         if ($isi->CEK_KADEP == '-' && $isi->CEK_GM == '-') {
                                             $color = '';
                                             $display = 'disabled';
                                         }
 
                                         echo "<tr class='gradeX'>";
-                                        echo "<td style='text-align:right;'><input class='icheck' $display type='checkbox' name='nospkl[]' id='nospkl' value='$isi->NO_SEQUENCE'></td>";
                                         echo "<td style='text-align:center;'>$i</td>";
 
                                         echo "<td style='$color'>$isi->NO_SEQUENCE</td>";
@@ -540,7 +548,7 @@
                                             echo "<td>" . $isi->ALASAN . "</td>";
                                         }
                                     ?>
-                                        <td>
+                                        <td align='center'>
                                             <?php
                                             if ($isi->CEK_KADEP == '-' && $isi->CEK_GM == '-') {
                                                 echo '-';
@@ -569,7 +577,7 @@
                                 <tr>
                                     <td width="3%" style='text-align:left;' colspan="4"><strong>L e g e n d : </strong></td>
                                     <td width="10%">
-                                        <button disabled style='border:0;background:#E63F53;width:25px;height:25px;color:white;'></button> : Not Yet Approved
+                                        <button disabled style='border:0;background:#FE2D45;width:25px;height:25px;color:white;'></button> : Not Yet Approved
                                     </td>
                                 </tr>
                             </table>

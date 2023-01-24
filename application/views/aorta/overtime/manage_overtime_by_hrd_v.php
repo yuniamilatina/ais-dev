@@ -39,7 +39,7 @@
     <section class="content-header">
         <ol class="breadcrumb">
             <li><a href="<?php echo base_url('index.php/basis/home_c') ?>"><span>Home</span></a></li>
-            <li><a href="<?php echo base_url('index.php/aorta/overtime_c') ?>"><strong>Manage Overtime</strong></a></li>
+            <li><a href="<?php echo base_url('index.php/aorta/view_spkl_c') ?>"><strong>View Overtime</strong></a></li>
         </ol>
     </section>
 
@@ -56,13 +56,6 @@
                     <div class="grid-header">
                         <i class="fa fa-clock-o"></i>
                         <span class="grid-title"><strong>EMPLOYEE OVERTIME</strong></span>
-                        <div class="pull-right grid-tools">
-                            <?php if($role == 1 || $role == 20 || $role == 30){ ?>
-                                <a href="<?php echo base_url('index.php/aorta/overtime_c/create_overtime/'.$period.'/'.$dept.'/'.$section) ?>" class="btn btn-default" data-toggle="tooltip" data-placement="left" title="Create Overtime" style="height:30px;font-size:13px;width:110px;padding-left:10px;">Create</a>
-                            <?php } else { ?>
-                                <a data-widget="collapse" title="Collapse"><i class="fa fa-chevron-up"></i></a>
-                            <?php } ?>
-                        </div>
                     </div>
                     <div class="grid-body">
                         <div class="pull">
@@ -71,8 +64,8 @@
                                     <td width="10%" style='text-align:left;' ><strong>Periode / Dept / Section</strong></td>
                                     <td width="10%">
                                         <select class="ddl" id="tanggal" onChange="document.location.href = this.options[this.selectedIndex].value;">
-                                            <?php for ($x = -5; $x <= 5; $x++) { $y = $x * 28 ?>
-                                                <option value="<? echo site_url('aorta/overtime_c/index/' . date("Ym", strtotime("+$y day")) . '/' . trim($dept) . '/' . $section); ?>" <?php
+                                            <?php for ($x = -4; $x <= 1; $x++) { $y = $x * 28 ?>
+                                                <option value="<? echo site_url('aorta/view_spkl_c/index/' . date("Ym", strtotime("+$y day")) . '/' . trim($dept) . '/' . $section); ?>" <?php
                                                 if ($period == date("Ym", strtotime("+$y day"))) {
                                                     echo 'SELECTED';
                                                 }
@@ -84,7 +77,7 @@
                                         <select id="opt_wcenter" onChange="document.location.href = this.options[this.selectedIndex].value;" class="ddl">
 
                                             <?php foreach ($all_dept as $row) { ?>
-                                                <option value="<? echo site_url('aorta/overtime_c/index/' . $period . '/' . trim($row->CHR_DEPT) . '/' . trim($section)); ?>" <?php
+                                                <option value="<? echo site_url('aorta/view_spkl_c/index/' . $period . '/' . trim($row->CHR_DEPT) . '/' . trim($section)); ?>" <?php
                                                 if ($dept == trim($row->CHR_DEPT)) {
                                                     echo 'SELECTED';
                                                 }
@@ -96,7 +89,7 @@
                                         <select id="opt_wcenter" onChange="document.location.href = this.options[this.selectedIndex].value;" class="ddl">
 
                                             <?php foreach ($all_section as $row) { ?>
-                                                <option value="<? echo site_url('aorta/overtime_c/index/' . $period . '/' . trim($dept) . '/' . $row->KODE); ?>" <?php
+                                                <option value="<? echo site_url('aorta/view_spkl_c/index/' . $period . '/' . trim($dept) . '/' . $row->KODE); ?>" <?php
                                                 if (trim($section) == trim($row->KODE)) {
                                                     echo 'SELECTED';
                                                 }
@@ -130,14 +123,8 @@
                                         echo "<tr class='gradeX'>";
                                         echo "<td>$i</td>";
 
-                                        if ($isi->CEK_SPV == 0 && $isi->CEK_KADEP == 0 && $isi->CEK_GM == 0) {
+                                        if ($isi->CEK_GM == 0) {
                                             $color = 'background:#E63F53;color:#fff;';
-                                        }
-                                        if ($isi->CEK_SPV == 1 && $isi->CEK_KADEP == 0) {
-                                            $color = 'background:#F5811E;color:#fff;';
-                                        }
-                                        if ($isi->CEK_KADEP == 1 && $isi->CEK_GM == 0) {
-                                            $color = 'background:#FFCA01;color:#fff;';
                                         }
                                         if ($isi->CEK_KADEP == 1 && $isi->CEK_GM == 1) {
                                             $color = 'background:#7DD488;color:#fff;';
@@ -168,22 +155,14 @@
                                         
                                         ?>
                                     <td align='center'>
-                                    <?php if($role == 1){ ?>
-                                        <a href="<?php echo base_url('index.php/aorta/overtime_c/print_overtime') . "/" . $isi->NO_SEQUENCE ?>" class="label label-default" data-placement="top" data-toggle="tooltip" title="Print"><span class="fa fa-print"></span></a>
-                                        <a href="<?php echo base_url('index.php/aorta/overtime_c/delete_overtime') . "/" . $isi->NO_SEQUENCE ?>" class="label label-danger" data-placement="right" data-toggle="tooltip" title="Delete" onclick="return confirm('Are you sure want to Delete this overtime with code : ' + <?php echo $isi->NO_SEQUENCE ?>);"><span class="fa fa-times"></span></a>
-                                    <?php } ?>
                                         <?php
                                         if ($isi->CEK_KADEP == '-' && $isi->CEK_GM == '-') {
                                             echo '-';
                                         } else if ($isi->CEK_KADEP == 0 && $isi->CEK_GM == 0) {
                                             ?>
                                             <a onclick="get_data_detail(<?php echo $isi->NO_SEQUENCE ?>);" data-toggle="modal" data-target="#modalDetailOvertime<?php echo $isi->NO_SEQUENCE ?>" data-placement="left" data-toggle="tooltip" title="View Detail" class="label label-info"><span class="fa fa-search"></span></a>
-                                            <!-- <a href="<?php echo base_url('index.php/aorta/overtime_c/edit_overtime') . "/" . $isi->NO_SEQUENCE ?>" class="label label-warning" data-placement="top" data-toggle="tooltip" title="Edit"><span class="fa fa-pencil"></span></a>
-                                            <a href="<?php echo base_url('index.php/aorta/overtime_c/delete_overtime') . "/" . $isi->NO_SEQUENCE ?>" class="label label-danger" data-placement="right" data-toggle="tooltip" title="Delete" onclick="return confirm('Are you sure want to Delete this overtime with code : ' + <?php echo $isi->NO_SEQUENCE ?>);"><span class="fa fa-times"></span></a> -->
                                         <?php } else { ?>
                                             <a onclick="get_data_detail(<?php echo $isi->NO_SEQUENCE ?>);" data-toggle="modal" data-target="#modalDetailOvertime<?php echo $isi->NO_SEQUENCE ?>" data-placement="left" data-toggle="tooltip" title="View Detail" class="label label-info"><span class="fa fa-search"></span></a>
-                                            <!-- <a disabled style="cursor: not-allowed;" class="label label-default" data-placement="top" data-toggle="tooltip" title="Edit"><span class="fa fa-pencil"></span></a>
-                                            <a disabled style="cursor: not-allowed;" class="label label-default" data-placement="right" data-toggle="tooltip" title="Delete"><span class="fa fa-times"></span></a> -->
                                         <?php } ?>
                                     </td>
                                     </tr>
@@ -196,28 +175,18 @@
 
                         </div>
 
-                        <!-- <?php //if($npk == '2099' || $npk == '0000'){ ?>
-                            <a href='http://192.168.0.231/AIS_PP/index.php/aorta/overtime_c/prepare_approve_ot_by_mgr'>Approval Overtime (Shortcut)</a>
-                        <?php //} ?> -->
-
                         <div style="width: 60%;">
                             <table width="40%" id='filter' border=0px style="outline: thin ridge #DDDDDD">
                                 <tr>
-                                    <td width="3%" style='text-align:left;' colspan="4"><strong>Legend (Realization): </strong></td>
+                                    <td width="3%" style='text-align:left;' colspan="4"><strong>Legend :</strong></td>
                                     <td width="10%">
-                                        <button disabled style='border:0;background:#E63F53;width:25px;height:25px;color:white;'></button> : Not Yet Approved
-                                    </td>
-                                    <td width="10%">
-                                        <button disabled style='border:0;background:#F5811E;width:25px;height:25px;color:white;'></button> : Approved by SPV
-                                    </td>
-                                    <td width="10%">
-                                        <button disabled style='border:0;background:#FFCA01;width:25px;height:25px;color:white;'></button> : Approved by MGR
+                                        <button disabled style='border:0;background:#E63F53;width:25px;height:25px;color:white;'></button> : Not Yet Approved by GM
                                     </td>
                                     <td width="10%">
                                         <button disabled style='border:0;background:#7DD488;width:25px;height:25px;color:white;' ></button> : Approved by GM
                                     </td>
                                     <td width="10%">
-                                        <button disabled style='border:0;background:#71AEF5;width:25px;height:25px;color:white;' ></button> : Process by HRD
+                                        <button disabled style='border:0;background:#71AEF5;width:25px;height:25px;color:white;' ></button> : Downloaded by HRD
                                     </td>
                                 </tr>
                             </table>
@@ -246,7 +215,7 @@
                                             <h4 class="modal-title" id="modalprogress"><strong>Detail Overtime No : <?php echo $isi->NO_SEQUENCE ?></strong></h4>
                                         </div>
                                         <div class="modal-body">
-                                            <?php echo form_open('aorta/overtime_c/approve_form_overtime', 'class="form-horizontal"'); ?>
+                                            <?php echo form_open('aorta/view_spkl_c/approve_form_overtime', 'class="form-horizontal"'); ?>
 
                                             <input name="NO_SEQUENCE" class="form-control" required type="hidden" style="width: 300px;" value="<?php echo $isi->NO_SEQUENCE ?>">
                                             <input name="CHR_DEPT" class="form-control" required type="hidden" style="width: 300px;" value="<?php echo $dept ?>">
@@ -317,21 +286,6 @@
 <script src="<?php echo base_url('assets/js/dataTables.fixedColumns.min.js') ?>"></script>
 <link rel="stylesheet" href="<?php echo base_url('assets/css/fixedColumns.dataTables.min.css'); ?>" >
 <script>
-//                                             $(document).ready(function () {
-//                                                 var table = $('#example').DataTable({
-//                                                     scrollY: "350px",
-//                                                     scrollX: true,
-//                                                     scrollCollapse: true,
-//                                                     paging: true,
-//                                                     fixedColumns: {
-//                                                         leftColumns: 4
-//                                                     }
-//                                                 });
-
-// //                                                    $('.dataTables_filter input').addClass('search-query');
-//                                                 $('.dataTables_filter input').attr('placeholder', 'Search');
-//                                             });
-
                                             function get_data_detail(nospkl) {
                                                 $("#data_detail").html("");
                                                 $.ajax({

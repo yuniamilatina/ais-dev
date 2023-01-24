@@ -62,7 +62,6 @@
         ?>
 
         <div class="row">
-
             <div class="col-md-12">
                 <div class="grid">
                     <div class="grid-header">
@@ -76,7 +75,7 @@
                         <div class="pull">
                         <?php if ($dept == '-') {
                             echo '-';
-                        } else if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA') {?> 
+                        } else if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA' || $dept == 'PPC') {?> 
                             <div style="width: 100%;">
                                 <table style="background:#fce0de;color:#85172d;" width="100%" id='filter' border=0px style="outline: thin ridge #DDDDDD">
                                     <tr>
@@ -98,7 +97,7 @@
                                     <td width="10%" style='text-align:left;'><strong>Periode / Dept / Section</strong></td>
                                     <td width="10%">
                                         <select class="ddl" id="tanggal" onChange="document.location.href = this.options[this.selectedIndex].value;">
-                                            <?php for ($x = -24; $x <= 0; $x++) {
+                                            <?php for ($x = -3; $x <= 1; $x++) {
                                                 $y = $x * 28 ?>
                                                 <option value="<?php echo site_url('aorta/overtime_c/prepare_approve_ot_by_spv/' . date("Ym", strtotime($period . "+$y day")) . '/' . trim($dept) . '/' . $section); ?>" <?php
                                                                                                                                                                                                                             if ($period == date("Ym", strtotime("+$y day"))) {
@@ -152,7 +151,7 @@
                                         <th style="text-align:center;">Total MP</th>
                                         <th style="text-align:center;">Plan OT (H)</th>
                                         <?php
-                                            if($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA' ){
+                                            if($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA' || $dept == 'PPC'){
                                                 echo "<th style='text-align:center;'>Planing</th>";
                                             } else{
                                                 echo "<th style='text-align:center;'>Action</th>";
@@ -166,19 +165,19 @@
                                     $i = 1;
                                     foreach ($data as $isi) {
 
-                                        if ($isi->CEK_SPV == 0 && $isi->CEK_KADEP == 0 && $isi->CEK_GM == 0) {
+                                        if ($isi->CEK_SPV == 0 && $isi->CEK_KADEP == 0) {
                                             $color = 'background:#E63F53;color:#fff;';
-                                            $display = 'enable';
+                                            $display = 'enabled';
                                         }
-                                        if ($isi->CEK_SPV == 1 && $isi->CEK_KADEP == 0 && $isi->CEK_GM == 0) {
+                                        if ($isi->CEK_SPV == 1) {
                                             $color = 'background:#F5811E;color:#fff;';
                                             $display = 'disabled';
                                         }
-                                        if ($isi->CEK_KADEP == 1 && $isi->CEK_GM == 0) {
+                                        if ($isi->CEK_KADEP == 1) {
                                             $color = 'background:#FFCA01;color:#fff;';
                                             $display = 'disabled';
                                         }
-                                        if ($isi->CEK_KADEP == 1 && $isi->CEK_GM == 1) {
+                                        if ($isi->CEK_GM == 1) {
                                             $color = 'background:#7DD488;color:#fff;';
                                             $display = 'disabled';
                                         }
@@ -195,11 +194,11 @@
                                         echo "<td style='text-align:right;'><input class='icheck' $display type='checkbox' name='nospkl[]' id='nospkl' value='$isi->NO_SEQUENCE'></td>";
                                         echo "<td style='text-align:center;'>$i</td>";
                                         echo "<td style='$color'>$isi->NO_SEQUENCE</td>";
-                                        if (strlen($isi->ALASAN) > 60) {
+                                        if (strlen($isi->ALASAN) > 70) {
                                             if($isi->REAL_MULAI_OV_TIME == 'NULL' || $isi->REAL_SELESAI_OV_TIME == 'NULL'){
-                                                echo "<td style='color:#E63F53'>" . substr($isi->ALASAN, 0, 60) . " ...</td>";
+                                                echo "<td style='color:#E63F53'>" . substr($isi->ALASAN, 0, 70) . " ...</td>";
                                             } else{
-                                                echo "<td>" . substr($isi->ALASAN, 0, 60) . " ...</td>";
+                                                echo "<td>" . substr($isi->ALASAN, 0, 70) . " ...</td>";
                                             }
                                         } else {
                                             if($isi->REAL_MULAI_OV_TIME == 'NULL' || $isi->REAL_SELESAI_OV_TIME == 'NULL'){
@@ -213,7 +212,7 @@
                                     ?>
                                         <?php if ($dept == '-') {
                                             echo '-';
-                                        } else if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA') {?>
+                                        } else if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA' || $dept == 'PPC') {?>
                                             <td align='center'>
                                             <?php
                                             if ($isi->CEK_SPV == '-') {
@@ -221,7 +220,7 @@
                                             } else if ($isi->CEK_SPV_PLAN == 0 && $isi->CEK_SPV == 0 && $isi->CEK_KADEP == 0) { ?>
                                                 <a href="<?php echo base_url('index.php/aorta/overtime_c/approve_plan_overtime_by_spv') . "/" . $isi->NO_SEQUENCE . "/" . $period . "/" . $dept . "/" . $section; ?>" class="label label-primary" data-placement="left" data-toggle="tooltip" title="Approve" onclick="return confirm('Are you sure want to Approve this overtime planing with code : ' + <?php echo $isi->NO_SEQUENCE ?>);"><span class="fa fa-thumbs-up"></span></a>
                                             <?php } else { ?>
-                                                <a href="<?php echo base_url('index.php/aorta/overtime_c/unapprove_plan_overtime_by_spv') . "/" . $isi->NO_SEQUENCE . "/" . $period . "/" . $dept . "/" . $section; ?>" class="label label-danger" data-placement="left" data-toggle="tooltip" title="Unapprove" onclick="return confirm('Are you sure want to Unapprove this overtime planing with code : ' + <?php echo $isi->NO_SEQUENCE ?>);"><span class="fa fa-thumbs-down"></span></a>
+                                                <a href="<?php echo base_url('index.php/aorta/overtime_c/unapprove_plan_overtime_by_spv') . "/" . $isi->NO_SEQUENCE . "/" . $period . "/" . $dept . "/" . $section; ?>" class="label label-danger" data-placement="left" data-toggle="tooltip" title="Unapprove" onclick="return confirm('Are you sure want to Unapprove this overtime planingwith code : ' + <?php echo $isi->NO_SEQUENCE ?>);"><span class="fa fa-thumbs-down"></span></a>
                                             <?php } ?>
                                             </td>
                                             <td align='center'>
@@ -281,13 +280,14 @@
                                         <button disabled style='border:0;background:#F5811E;width:25px;height:25px;color:white;'></button> : Approved by SPV
                                     </td>
                                     <td width="10%">
-                                        <button disabled style='border:0;background:#FFCA01;width:25px;height:25px;color:white;' ></button> : Approved by MGR
+                                        <button disabled style='border:0;background:#FFCA01;width:25px;height:25px;color:white;'></button> : Approved by MGR
                                     </td>
                                     <td width="10%">
-                                        <button disabled style='border:0;background:#7DD488;width:25px;height:25px;color:white;' ></button> : Approved by GM
+                                        <button disabled style='border:0;background:#7DD488;width:25px;height:25px;color:white;'></button> : Approved by GM
                                     </td>
                                     <td width="10%">
-                                        <button disabled style='border:0;background:#71AEF5;width:25px;height:25px;color:white;' ></button> : Process by HRD
+                                        <button disabled style='border:0;background:#71AEF5;width:25px;height:25px;color:white;'></button> : Process by HRD
+                                        <span style = "font-size: 9px; color:gray;">(MIS, MSU, PCO, QUA, PPC)</span>
                                     </td>
                                 </tr>
                             </table>
@@ -368,7 +368,7 @@
                                         <div class="modal-footer">
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                                <?php if ($isi->CEK_SPV == 0 && $isi->CEK_KADEP == 0) { ?>
+                                                <?php if ($isi->CEK_SPV == 0 AND $isi->CEK_KADEP == 0) { ?>
                                                     <button type="submit" value=1 name="submit" class="btn btn-primary" data-placement="left" data-toggle="tooltip" title="Approve This Quota Request" onclick="return confirm('Are you sure want to Approve this quota request with code : ' + <?php echo $isi->NO_SEQUENCE ?>);"><i class="fa fa-thumbs-up"></i> Approve</button>
                                                 <?php } else { ?>
                                                     <button type="submit" value=0 name="submit" class="btn btn-danger" data-placement="left" data-toggle="tooltip" title="Unapprove This Quota Request" onclick="return confirm('Are you sure want to Unapprove this quota request with code : ' + <?php echo $isi->NO_SEQUENCE ?>);"><i class="fa fa-thumbs-down"></i> Unapprove</button>
@@ -453,9 +453,9 @@
                                     $i = 1;
                                     foreach ($data_approve as $isi) {
 
-                                        if ($isi->CEK_SPV == 0 && $isi->CEK_KADEP == 0 && $isi->CEK_GM == 0) {
+                                        if ($isi->CEK_SPV == 0 && $isi->CEK_KADEP == 0) {
                                             $color = 'background:#E63F53;color:#fff;';
-                                            $display = 'enable';
+                                            $display = 'enabled';
                                         }
                                         if ($isi->CEK_SPV == '-' && $isi->CEK_KADEP == '-' && $isi->CEK_GM == '-') {
                                             $color = '';
@@ -463,6 +463,7 @@
                                         }
 
                                         echo "<tr class='gradeX'>";
+                                        echo "<td style='text-align:center;'>$i</td>";
                                         echo "<td style='$color'>$isi->NO_SEQUENCE</td>";
                                         if (strlen($isi->ALASAN) > 80) {
                                             if($isi->REAL_MULAI_OV_TIME == 'NULL' || $isi->REAL_SELESAI_OV_TIME == 'NULL'){
@@ -480,7 +481,7 @@
                                         echo "<td align='center'><strong>$isi->TOT_MP</strong></td>";
                                         echo "<td align='center'><strong>" . number_format($isi->RENC_DURASI_OV_TIME, 2, ',', '.') . "</strong></td>";
                                     ?>
-                                        <td>
+                                        <td align='center'>
                                             <?php
                                             if ($isi->CEK_SPV == '-') {
                                                 echo '-';
@@ -528,7 +529,7 @@
                             <div class="modal-wrapper">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
-                                        <div class="modal-header bg-primary">
+                                        <div class="modal-header  bg-primary">
                                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                                             <h4 class="modal-title" id="modalprogress"><strong>Detail Overtime No : <?php echo $isi->NO_SEQUENCE ?></strong></h4>
                                         </div>
@@ -579,7 +580,7 @@
                                         <div class="modal-footer">
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                                <?php if ($isi->CEK_SPV == 0 && $isi->CEK_KADEP == 0) { ?>
+                                                <?php if ($isi->CEK_SPV == 0 AND $isi->CEK_KADEP == 0) { ?>
                                                     <button type="submit" value=1 name="submit" class="btn btn-primary" data-placement="left" data-toggle="tooltip" title="Approve This Quota Request" onclick="return confirm('Are you sure want to Approve this quota request with code : ' + <?php echo $isi->NO_SEQUENCE ?>);"><i class="fa fa-thumbs-up"></i> Approve</button>
                                                 <?php } else { ?>
                                                     <button type="submit" value=0 name="submit" class="btn btn-danger" data-placement="left" data-toggle="tooltip" title="Unapprove This Quota Request" onclick="return confirm('Are you sure want to Unapprove this quota request with code : ' + <?php echo $isi->NO_SEQUENCE ?>);"><i class="fa fa-thumbs-down"></i> Unapprove</button>
