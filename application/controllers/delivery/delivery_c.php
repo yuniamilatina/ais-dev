@@ -485,4 +485,18 @@ class delivery_c extends CI_Controller {
         echo $data;
     }
 
+    //ADD BY IRZA (POLMAN 2023)
+    function manange_pn_replacer() {
+        
+        $data['app'] = $this->role_module_m->get_app();
+        $data['module'] = $this->role_module_m->get_module();
+        $data['function'] = $this->role_module_m->get_function();
+        $data['sidebar'] = $this->role_module_m->side_bar(375);
+        $data['news'] = $this->news_m->get_news();
+        $data['title'] = 'Part Number Replacer';
+
+        $data['content'] = 'delivery/manage_part_number_replacer_v';
+        $this->load->view($this->layout, $data);
+    }
+
 }
