@@ -64,6 +64,13 @@ class overtime_c extends CI_Controller
                 $dept = $dept;
             }
             $data['all_dept'] = $this->dept_m->get_dept_by_division_id($id_division);
+        } else if ($role == 33) {
+            if ($dept == NULL) {
+                $dept = $this->dept_m->get_top_data_dept_by_groupdept($id_group)->row()->CHR_DEPT;
+            } else {
+                $dept = $dept;
+            }
+            $data['all_dept'] = $this->dept_m->get_dept_by_groupdept($id_group);
         } else {
             if ($dept == NULL) {
                 $dept = $this->dept_m->get_data_dept($id_dept)->row()->CHR_DEPT;
@@ -730,6 +737,15 @@ class overtime_c extends CI_Controller
         $data['section'] = $section;
         $data['period'] = $period;
 
+        $data['first_sunday'] = $this->firstSunday(substr($period, 0, 4) . '-' . substr($period, 4, 2));
+        $data['first_saturday'] = $this->firstSaturday(substr($period, 0, 4) . '-' . substr($period, 4, 2));
+
+        $data['plan'] = $this->quota_employee_m->get_plan_quota_by_dept_and_period($period, $dept, $section);
+        $data['actl'] = $this->quota_employee_m->get_actl_quota_by_dept_and_period($period, $dept, $section);
+
+        $data['plan_cum'] = $this->quota_employee_m->get_plan_quota_accumulation_by_dept_and_period($period, $dept, $section);
+        $data['actl_cum'] = $this->quota_employee_m->get_actl_quota_accumulation_by_dept_and_period($period, $dept, $section);
+
         $data['data'] = $this->overtime_m->get_data_overtime_by_spv(trim($dept), $period, $section);
         $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_spv(trim($dept), $section);
         $data['content'] = 'aorta/overtime/manage_overtime_by_spv_v';
@@ -762,7 +778,9 @@ class overtime_c extends CI_Controller
             'CEK_SPV' => $type_action,
             'OPER_EDIT' => $created_by,
             'TGL_EDIT' => $date,
-            'JAM_EDIT' => $time
+            'JAM_EDIT' => $time,
+            'DATE_CEK_SPV' => $date,
+            'TIME_CEK_SPV' => $time
         );
 
         $this->overtime_m->update_overtime_by_id($data, $nospkl);
@@ -839,7 +857,9 @@ class overtime_c extends CI_Controller
             'CEK_SPV' => 1,
             'OPER_EDIT' => $created_by,
             'TGL_EDIT' => $date,
-            'JAM_EDIT' => $time
+            'JAM_EDIT' => $time,
+            'DATE_CEK_SPV' => $date,
+            'TIME_CEK_SPV' => $time
         );
 
         $this->overtime_m->update_overtime_by_id($data, $nospkl);
@@ -962,6 +982,8 @@ class overtime_c extends CI_Controller
                 'OPER_EDIT' => $created_by,
                 'TGL_EDIT' => $date,
                 'JAM_EDIT' => $time,
+                'DATE_CEK_SPV' => $date,
+                'TIME_CEK_SPV' => $time,
                 'CEK_SPV' => 1,
                 'APP_PLAN' => $date . $time
             );
@@ -1051,17 +1073,20 @@ class overtime_c extends CI_Controller
         $data['section'] = $section;
         $data['period'] = $period;
 
-        if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA' || $dept == 'PPC') {
-            $data['data'] = $this->overtime_m->get_data_overtime_by_mgr(trim($dept), $period, $section);
-        }else {
-            $data['data'] = $this->overtime_m->get_data_overtime_by_spv(trim($dept), $period, $section);
-        }
+        $data['data'] = $this->overtime_m->get_data_overtime_by_mgr(trim($dept), $period, $section);
+        $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_spv_mgr(trim($dept), $section);
 
-        if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA' || $dept == 'PPC') {
-            $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_spv_mgr(trim($dept), $section);
-        }else {
-            $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_mgr(trim($dept), $section);
-        }
+        // if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA'|| $dept == 'PPC'|| $dept == 'ENG'|| $dept == 'MTE') {
+        //     $data['data'] = $this->overtime_m->get_data_overtime_by_mgr(trim($dept), $period, $section);
+        // }else {
+        //     $data['data'] = $this->overtime_m->get_data_overtime_by_spv(trim($dept), $period, $section);
+        // }
+
+        // if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA' || $dept == 'PPC'|| $dept == 'ENG'|| $dept == 'MTE') {
+        //     $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_spv_mgr(trim($dept), $section);
+        // }else {
+        //     $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_mgr(trim($dept), $section);
+        // }
 
         $data['first_sunday'] = $this->firstSunday(substr($period, 0, 4) . '-' . substr($period, 4, 2));
         $data['first_saturday'] = $this->firstSaturday(substr($period, 0, 4) . '-' . substr($period, 4, 2));
@@ -1103,7 +1128,9 @@ class overtime_c extends CI_Controller
             'CEK_KADEP' => $type_action,
             'OPER_EDIT' => $created_by,
             'TGL_EDIT' => $date,
-            'JAM_EDIT' => $time
+            'JAM_EDIT' => $time,
+            'DATE_CEK_KADEP' => $date,
+            'TIME_CEK_KADEP' => $time
         );
 
         $this->overtime_m->update_overtime_by_id($data, $nospkl);
@@ -1219,7 +1246,9 @@ class overtime_c extends CI_Controller
             'CEK_SPV' => 1,
             'OPER_EDIT' => $created_by,
             'TGL_EDIT' => $date,
-            'JAM_EDIT' => $time
+            'JAM_EDIT' => $time,
+            'DATE_CEK_KADEP' => $date,
+            'TIME_CEK_KADEP' => $time
         );
 
         $this->overtime_m->update_overtime_by_id($data, $nospkl);
@@ -1343,6 +1372,8 @@ class overtime_c extends CI_Controller
                 'OPER_EDIT' => $created_by,
                 'TGL_EDIT' => $date,
                 'JAM_EDIT' => $time,
+                'DATE_CEK_KADEP' => $date,
+                'TIME_CEK_KADEP' => $time,
                 'CEK_KADEP' => 1,
                 'CEK_SPV' => 1,
                 'APP_PLAN' => $date . $time
@@ -1495,6 +1526,8 @@ class overtime_c extends CI_Controller
 
         $data = array(
             'CEK_GM' => $type_action,
+            'DATE_CEK_GM' => $date,
+            'TIME_CEK_GM' => $time,
             'APP_PLAN' => $date . $time
         );
 
@@ -1592,6 +1625,8 @@ class overtime_c extends CI_Controller
         $data = array(
             'CEK_GM_PLAN' => 1,
             'CEK_GM' => 1,
+            'DATE_CEK_GM' => $date,
+            'TIME_CEK_GM' => $time,
             'APP_PLAN' => $date . $time
         );
 
@@ -1695,6 +1730,8 @@ class overtime_c extends CI_Controller
                 'OPER_EDIT' => $created_by,
                 'TGL_EDIT' => $date,
                 'JAM_EDIT' => $time,
+                'DATE_CEK_GM' => $date,
+                'TIME_CEK_GM' => $time,
                 'CEK_GM' => 1,
                 'APP_PLAN' => $date . $time
             );
@@ -1788,17 +1825,20 @@ class overtime_c extends CI_Controller
         $data['detail_quota_group'] = $this->overtime_m->get_detail_quota_group_by_periode($period, $data['group']);
         $data['quota_usage_dept'] = $this->overtime_m->get_detail_quota_group_per_dept_by_periode_gm($period, $data['group']);
 
-        if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA' || $dept == 'PPC') {
-            $data['data'] = $this->overtime_m->get_data_overtime_by_mgr(trim($dept), $period, $section);
-        }else {
-            $data['data'] = $this->overtime_m->get_data_overtime_by_spv(trim($dept), $period, $section);
-        }
+        $data['data'] = $this->overtime_m->get_data_overtime_by_mgr(trim($dept), $period, $section);
+        $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_spv_mgr(trim($dept), $section);
 
-        if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA' || $dept == 'PPC') {
-            $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_spv_mgr(trim($dept), $section);
-        }else {
-            $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_mgr(trim($dept), $section);
-        }
+        // if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA' || $dept == 'PPC'|| $dept == 'ENG'|| $dept == 'MTE') {
+        //     $data['data'] = $this->overtime_m->get_data_overtime_by_mgr(trim($dept), $period, $section);
+        // }else {
+        //     $data['data'] = $this->overtime_m->get_data_overtime_by_spv(trim($dept), $period, $section);
+        // }
+
+        // if ($dept == 'MIS' || $dept == 'MSU' || $dept == 'PCO' || $dept == 'QUA' || $dept == 'PPC'|| $dept == 'ENG'|| $dept == 'MTE') {
+        //     $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_spv_mgr(trim($dept), $section);
+        // }else {
+        //     $data['data_approve'] = $this->overtime_m->get_data_approve_overtime_by_mgr(trim($dept), $section);
+        // }
         
         $data['content'] = 'aorta/overtime/manage_overtime_by_mgr_and_gm_v';
         $this->load->view($this->layout, $data);
@@ -1823,6 +1863,10 @@ class overtime_c extends CI_Controller
                 'OPER_EDIT' => $created_by,
                 'TGL_EDIT' => $date,
                 'JAM_EDIT' => $time,
+                'DATE_CEK_KADEP' => $date,
+                'TIME_CEK_KADEP' => $time,
+                'DATE_CEK_GM' => $date,
+                'TIME_CEK_GM' => $time,
                 'CEK_GM' => 1,
                 'APP_PLAN' => $date . $time
             );
@@ -1873,6 +1917,10 @@ class overtime_c extends CI_Controller
             'OPER_EDIT' => $created_by,
             'TGL_EDIT' => $date,
             'JAM_EDIT' => $time,
+            'DATE_CEK_KADEP' => $date,
+            'TIME_CEK_KADEP' => $time,
+            'DATE_CEK_GM' => $date,
+            'TIME_CEK_GM' => $time,
             'CEK_GM' => $type_action,
             'APP_PLAN' => $date . $time
         );
@@ -1982,6 +2030,10 @@ class overtime_c extends CI_Controller
             'OPER_EDIT' => $created_by,
             'TGL_EDIT' => $date,
             'JAM_EDIT' => $time,
+            'DATE_CEK_KADEP' => $date,
+            'TIME_CEK_KADEP' => $time,
+            'DATE_CEK_GM' => $date,
+            'TIME_CEK_GM' => $time,
             'CEK_GM_PLAN' => 1,
             'CEK_GM' => 1,
             'APP_PLAN' => $date . $time
