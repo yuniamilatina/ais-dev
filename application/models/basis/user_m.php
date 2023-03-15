@@ -106,13 +106,14 @@ class user_m extends CI_Model {
                                 and e.INT_ID_DIVISION=d.INT_ID_DIVISION and d.INT_ID_COMPANY=f.INT_ID_COMPANY and a.INT_ID_SECTION=e.INT_ID_SECTION 
                                 and e.CHR_NPK='$npk'")->row();
     }
-    
+
     function get_npk_dept($id_dept) {
         $query = $this->db->query(" SELECT CHR_NPK
                                     FROM  TM_USER
                                     WHERE INT_ID_DEPT = '$id_dept' AND (INT_ID_ROLE = '5' OR INT_ID_ROLE = '10' OR INT_ID_ROLE = '39' OR INT_ID_ROLE = '45') AND BIT_FLG_DEL = '0' AND BIT_FLG_ACTIVE = '1'")->result();
         return $query;
     }
+    
     function get_npk_groupdept($id_group) {
         $query = $this->db->query(" SELECT CHR_NPK
                                     FROM  TM_USER
